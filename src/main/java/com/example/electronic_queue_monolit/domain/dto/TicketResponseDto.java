@@ -1,6 +1,5 @@
 package com.example.electronic_queue_monolit.domain.dto;
 
-import com.example.electronic_queue_monolit.domain.model.TicketStatus;
 import lombok.*;
 
 @AllArgsConstructor
@@ -8,7 +7,7 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-public class TicketDto{
+public class TicketResponseDto {
     private Long id;
     private String number;
     private UserDto operatorId;
@@ -16,5 +15,5 @@ public class TicketDto{
     private PlaceDto place;
     private InformationDto information;
     private TicketStatusDto ticketStatus;
-
-}
+    private String processingTime;
+} 

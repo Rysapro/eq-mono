@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ticket")
@@ -23,8 +25,9 @@ public class Ticket extends BaseEntity {
     @Column(name = "quantity")
     private String number;
 
-    private Timestamp timeOfFinished;
-    private Timestamp processingTime;
+    private LocalDateTime timeOfFinished;
+    
+    private Duration processingTime;
 
     @ManyToOne
     @JoinColumn(name = "users")

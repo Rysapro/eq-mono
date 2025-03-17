@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Список талонов</title>
+    <title>Генерация талона</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
@@ -48,12 +48,6 @@
         }
         .container {
             max-width: 1200px;
-        }
-        .table th {
-            background-color: #f8f9fa;
-        }
-        .action-column {
-            width: 120px;
         }
     </style>
 </head>
@@ -132,64 +126,74 @@
         <div class="card shadow-sm">
             <div class="card-header bg-white py-3">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h2>Список талонов</h2>
-                    <div>
-                        <a th:href="@{/ticket/ticket-list-page}" class="btn btn-info me-2">
-                            <i class="bi bi-funnel"></i> Расширенный поиск
-                        </a>
-                        <a th:href="@{/ticket/generate-form}" class="btn btn-success me-2">
-                            <i class="bi bi-ticket-perforated"></i> Генерировать талон
-                        </a>
-                        <a th:href="@{/ticket/create}" class="btn btn-primary">
-                            <i class="bi bi-plus-lg"></i> Создать талон
-                        </a>
-                    </div>
+                    <h2>Генерация талона</h2>
+                    <a th:href="@{/ticket/list}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Назад к списку
+                    </a>
                 </div>
             </div>
 
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Номер</th>
-                            <th>Статус</th>
-                            <th>Услуга</th>
-                            <th>Место</th>
-                            <th>Действия</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="item : ${items}">
-                            <td th:text="${item.id}"></td>
-                            <td th:text="${item.number}"></td>
-                            <td th:text="${item.ticketStatus != null ? item.ticketStatus.name : '-'}"></td>
-                            <td th:text="${item.provision != null ? item.provision.provisionName : '-'}"></td>
-                            <td th:text="${item.place != null ? item.place.name : '-'}"></td>
-                            <td>
-                                <div class="btn-group">
-                                    <a th:href="@{/ticket/edit/{id}(id=${item.id})}"
-                                       class="btn btn-sm btn-outline-primary"
-                                       title="Редактировать">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <a th:href="@{/ticket/delete/{id}(id=${item.id})}"
-                                       class="btn btn-sm btn-outline-danger"
-                                       title="Удалить"
-                                       onclick="return confirm('Вы уверены, что хотите удалить этот талон?')">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+            <div class="card-body">
+                <form th:action="@{/ticket/generate}" method="get" class="needs-validation" novalidate>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="placeId" class="form-label">Место</label>
+                                <select id="placeId" name="placeId" class="form-select" required>
+                                    <option value="">Выберите место</option>
+                                    <option th:each="place : ${places}" 
+                                            th:value="${place.id}" 
+                                            th:text="${place.name}"></option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Пожалуйста, выберите место
                                 </div>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="provisionId" class="form-label">Услуга</label>
+                                <select id="provisionId" name="provisionId" class="form-select" required>
+                                    <option value="">Выберите услугу</option>
+                                    <option th:each="provision : ${provisions}" 
+                                            th:value="${provision.id}" 
+                                            th:text="${provision.provisionName}"></option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Пожалуйста, выберите услугу
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Сгенерировать талон
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </main>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Валидация формы
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
 </body>
-</html>
+</html> 

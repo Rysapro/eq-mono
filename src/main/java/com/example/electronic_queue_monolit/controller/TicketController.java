@@ -24,15 +24,18 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
     private final TicketStatusService ticketStatusService;
     private final ProvisionService provisionService;
     private final PlaceService placeService;
+    private final InformationService informationService;
 
     public TicketController(TicketService ticketService, 
                            TicketStatusService ticketStatusService,
                            ProvisionService provisionService,
-                            PlaceService placeService) {
+                           PlaceService placeService,
+                           InformationService informationService) {
         super(ticketService);
         this.ticketStatusService = ticketStatusService;
         this.provisionService = provisionService;
         this.placeService = placeService;
+        this.informationService = informationService;
     }
 
     @Override
@@ -82,11 +85,35 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
         Page<TicketDto> tickets = baseService.getTickets(
                 placeId, informationId, provisionId, ticketStatusId, pageable
         );
+        
+        // Добавляем данные для фильтров
+        model.addAttribute("places", placeService.findAll());
+        model.addAttribute("provisions", provisionService.findAll());
+        model.addAttribute("statuses", ticketStatusService.findAll());
+        model.addAttribute("informations", informationService.findAll());
+        
+        // Добавляем выбранные значения фильтров
+        model.addAttribute("placeId", placeId);
+        model.addAttribute("informationId", informationId);
+        model.addAttribute("provisionId", provisionId);
+        model.addAttribute("ticketStatusId", ticketStatusId);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("size", size);
+        
+        // Добавляем данные для пагинации
         model.addAttribute("items", tickets.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", tickets.getTotalPages());
         model.addAttribute("totalItems", tickets.getTotalElements());
-        return "ticket/list";
+        
+        return "ticket/ticket-list-page";
+    }
+
+    @GetMapping("/generate-form")
+    public String generateTicketForm(Model model) {
+        model.addAttribute("places", placeService.findAll());
+        model.addAttribute("provisions", provisionService.findAll());
+        return "ticket/generate";
     }
 
     @GetMapping("/generate")
