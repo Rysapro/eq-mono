@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Создание услуги</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        .container {
+            max-width: 800px;
+        }
+        .form-header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px 5px 0 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .form-content {
+            padding: 20px;
+        }
+        .form-footer {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-top: 1px solid #dee2e6;
+            border-radius: 0 0 5px 5px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="form-header">
+            <h2 class="mb-0">Создание новой услуги</h2>
+            <p class="text-muted mt-2 mb-0">Заполните форму для создания новой услуги</p>
+        </div>
+
+        <div class="form-content">
+            <form th:action="@{/provision/save}" th:object="${form}" method="post">
+                <div class="mb-4">
+                    <label for="provisionName" class="form-label fw-bold">Название услуги</label>
+                    <input type="text"
+                           class="form-control form-control-lg"
+                           id="provisionName"
+                           th:field="*{provisionName}"
+                           placeholder="Введите название услуги"
+                           required>
+                    <div class="form-text">Введите название услуги</div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="code" class="form-label fw-bold">Код</label>
+                    <input type="text"
+                           class="form-control form-control-lg"
+                           id="code"
+                           th:field="*{code}"
+                           placeholder="Введите код услуги">
+                    <div class="form-text">Введите код услуги</div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="place" class="form-label fw-bold">Место</label>
+                    <select class="form-select form-select-lg" id="place" th:field="*{place.id}">
+                        <option value="">-- Выберите место --</option>
+                        <option th:each="place : ${places}" 
+                                th:value="${place.id}" 
+                                th:text="${place.name}"></option>
+                    </select>
+                </div>
+
+                <div class="form-footer d-flex justify-content-between">
+                    <a th:href="@{/provision/list}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Назад к списку
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Сохранить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
