@@ -10,12 +10,17 @@ import com.example.electronic_queue_monolit.repository.TicketStatusRepository;
 import com.example.electronic_queue_monolit.repository.base.BaseRepository;
 import com.example.electronic_queue_monolit.service.TicketService;
 import com.example.electronic_queue_monolit.service.base.BaseServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -257,5 +262,135 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
                 .stream()
                 .map(this::mapToTicketResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    //Прием талона (15)
+
+    @Override
+    public TicketResponseDto acceptanceTicket(Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) auth.getPrincipal();
+
+        Ticket ticket = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Билет не найден!!!"));
+
+        if(ticket.getTicketStatus().getId() == 3L){
+            throw new RuntimeException("талон был уже принят или обработан");
+        }
+        TicketStatus newStatus = ticketStatusRepository.findById(2l)
+                .orElseThrow(() -> new RuntimeException("Статус Активный с id 2 не найден!!!"));
+        ticket.setTicketStatus(newStatus);
+        ticket.setOperatorId(currentUser);
+        Ticket updatedTicket = repo.save(ticket);
+        return mapToTicketResponseDto(updatedTicket);
+    }
+
+    //Завершение обработки
+
+    @Override
+    public TicketResponseDto completionTicket(Long id){
+
+        Ticket ticket = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Билет не найден!!!"));
+
+        if(ticket.getTicketStatus().getId() == 3L){
+            throw new RuntimeException("талон был уже принят или обработан");
+        }
+        TicketStatus newStatus = ticketStatusRepository.findById(3l)
+                .orElseThrow(() -> new RuntimeException("Статус Завершенный с id 3 не найден!!!"));
+        ticket.setTicketStatus(newStatus);
+
+        ticket.setTimeOfFinished(LocalDateTime.now());
+        ticket.setProcessingTime(Duration.between(ticket.getUpdateDate(), ticket.getTimeOfFinished()));
+
+        Ticket updatedTicket = repo.save(ticket);
+        return mapToTicketResponseDto(updatedTicket);
+    }
+
+    //Неявка (17)
+    private final ScheduledTaskService scheduledTaskService;
+
+    @Autowired
+    private TaskScheduler taskScheduler;
+
+    @Override
+    public TicketResponseDto absenceTicket(Long id){
+        Ticket ticket = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Билет не найден!!!"));
+
+        if(ticket.getTicketStatus().getId() == 3L){
+            throw new RuntimeException("талон был уже принят или обработан");
+        }
+        TicketStatus waitingStatus = ticketStatusRepository.findById(4l)
+                .orElseThrow(() -> new RuntimeException("Статус Неактивный с id 4 не найден!!!"));
+        ticket.setTicketStatus(waitingStatus);
+
+        repo.save(ticket);
+
+        scheduledTaskService.scheduleTask(() -> {
+            checkAndUpdateStatus(id);
+        }, 5, TimeUnit.MINUTES);
+
+        return mapToTicketResponseDto(ticket);
+    }
+    private void checkAndUpdateStatus(Long ticketId) {
+        Ticket ticket = repo.findById(ticketId)
+                .orElseThrow(() -> new RuntimeException("Билет не найден!!!"));
+
+        TicketStatus noShowStatus = ticketStatusRepository.findById(5L)
+                .orElseThrow(() -> new RuntimeException("Статус Неявка с id 5 не найден!!!"));
+
+        ticket.setTicketStatus(noShowStatus);
+        repo.save(ticket);
+    }
+
+    // Принятие неявки
+
+    @Override
+    public TicketResponseDto getAbsenceTicket(Long id){
+
+        Ticket ticket = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Билет не найден!!!"));
+
+        TicketStatus newStatus = ticketStatusRepository.findById(2l)
+                .orElseThrow(() -> new RuntimeException("Статус Активный с id 2 не найден!!!"));
+        ticket.setTicketStatus(newStatus);
+        repo.save(ticket);
+        return mapToTicketResponseDto(ticket);
+    }
+
+    // Получения всех неявок за последние 5 минут
+
+    @Override
+    public List<TicketResponseDto> getAllTicketStatusAbsence(Long placeId) {
+        LocalDateTime fiveMinutesAgo = LocalDateTime.now().minusMinutes(5);
+
+        return ticketRepository.getAllTicketStatusAbsence(placeId, fiveMinutesAgo)
+                .stream()
+                .map(this::mapToTicketResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    //возвращает с пагинацией завершенные талоны (21)
+
+    @Override
+    public Page<TicketResponseDto> getTicketStatusFinished(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+
+        return ticketRepository.findAllFinishedTickets(startDate, endDate,  pageable)
+                .map(this::mapToTicketResponseDto);
+    }
+
+    //возвращает с пагинацией по месту завершенные талоны
+
+    @Override
+    public Page<TicketResponseDto> getTicketStatusFinishedWithPlace(Long placeId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+
+        return ticketRepository.findAllFinishedTicketsWithPlace(placeId, startDate, endDate,  pageable)
+                .map(this::mapToTicketResponseDto);
+    }
+
+    @Override
+    public List<OperatorTicketCountDto> getCountTicketByUser(LocalDateTime startDate, LocalDateTime endDate) {
+        return ticketRepository.countProcessedTicketsByOperator(startDate, endDate);
     }
 }
