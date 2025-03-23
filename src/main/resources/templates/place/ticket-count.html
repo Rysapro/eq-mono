@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статистика талонов по МТО</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .header {
+            background-color: #0d6efd;
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 40px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .count-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .count-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .count-card .color-tag {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 8px;
+            height: 100%;
+            background-color: #0d6efd;
+        }
+        
+        .place-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #212529;
+        }
+        
+        .ticket-count {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #0d6efd;
+            margin-bottom: 10px;
+        }
+        
+        .ticket-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .status-1 {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-2 {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        
+        .status-3 {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-4 {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .refresh-section {
+            text-align: center;
+            margin: 20px 0 40px;
+        }
+        
+        .refresh-time {
+            margin-top: 10px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            padding: 20px 0;
+            background-color: #f1f3f5;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .card-icon {
+            font-size: 2rem;
+            color: #e9ecef;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+        }
+        
+        .no-tickets {
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>Статистика талонов по МТО</h1>
+            <p class="lead">Информация о количестве ожидающих талонов</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="refresh-section">
+            <button id="refreshButton" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-clockwise"></i> Обновить данные
+            </button>
+            <div id="lastUpdateTime" class="refresh-time">Последнее обновление: --:--:--</div>
+        </div>
+        
+        <div id="placeTicketsContainer" class="row">
+            <!-- Контейнер для карточек МТО, который будет заполняться через AJAX -->
+            <div class="col-12 no-tickets" id="noTicketsMessage" style="display: none;">
+                <h3>Нет ожидающих талонов</h3>
+                <p>На данный момент нет ожидающих обработки талонов ни в одном МТО</p>
+            </div>
+        </div>
+        
+        <div class="mt-4 text-center">
+            <a href="/ticket/operator-panel" class="btn btn-primary me-2">Панель оператора</a>
+            <a href="/" class="btn btn-secondary">Вернуться на главную</a>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <div class="container">
+            <p>© 2023 Электронная очередь. Все права защищены.</p>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Функция для обновления данных о талонах
+        function fetchTicketCounts() {
+            fetch('/place/ticket-count')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Ошибка получения данных');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    updateTicketCounts(data);
+                    updateLastUpdateTime();
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при получении данных. Пожалуйста, попробуйте позже.');
+                });
+        }
+        
+        // Функция для обновления времени последнего обновления
+        function updateLastUpdateTime() {
+            const now = new Date();
+            const formattedTime = now.toLocaleTimeString();
+            document.getElementById('lastUpdateTime').textContent = 'Последнее обновление: ' + formattedTime;
+        }
+        
+        // Функция для обновления контейнера с данными о талонах
+        function updateTicketCounts(data) {
+            const container = document.getElementById('placeTicketsContainer');
+            const noTicketsMessage = document.getElementById('noTicketsMessage');
+            
+            // Очищаем контейнер
+            container.innerHTML = '';
+            
+            // Если данных нет, показываем сообщение
+            if (!data || data.length === 0) {
+                noTicketsMessage.style.display = 'block';
+                container.appendChild(noTicketsMessage);
+                return;
+            }
+            
+            noTicketsMessage.style.display = 'none';
+            
+            // Добавляем карточки для каждого МТО
+            data.forEach(place => {
+                const card = createPlaceCard(place);
+                container.appendChild(card);
+            });
+        }
+        
+        // Функция для создания карточки МТО
+        function createPlaceCard(place) {
+            const col = document.createElement('div');
+            col.className = 'col-md-4 col-sm-6';
+            
+            const card = document.createElement('div');
+            card.className = 'count-card';
+            
+            // Цветная полоса слева
+            const colorTag = document.createElement('div');
+            colorTag.className = 'color-tag';
+            card.appendChild(colorTag);
+            
+            // Иконка
+            const icon = document.createElement('i');
+            icon.className = 'bi bi-building card-icon';
+            card.appendChild(icon);
+            
+            // Название МТО
+            const placeName = document.createElement('div');
+            placeName.className = 'place-name';
+            placeName.textContent = place.placeName;
+            card.appendChild(placeName);
+            
+            // Количество талонов
+            const ticketCount = document.createElement('div');
+            ticketCount.className = 'ticket-count';
+            ticketCount.textContent = place.ticketCount;
+            card.appendChild(ticketCount);
+            
+            // Статус "Ожидание"
+            const statusLabel = document.createElement('span');
+            statusLabel.className = 'ticket-status status-1';
+            statusLabel.textContent = 'Ожидание';
+            card.appendChild(statusLabel);
+            
+            // Ссылка на панель оператора с фильтром по МТО
+            const link = document.createElement('a');
+            link.href = `/ticket/operator-panel?placeId=${place.placeId}&ticketStatusId=1`;
+            link.className = 'btn btn-primary w-100 mt-3';
+            link.textContent = 'Перейти к талонам';
+            card.appendChild(link);
+            
+            col.appendChild(card);
+            return col;
+        }
+        
+        // Привязка события к кнопке обновления
+        document.getElementById('refreshButton').addEventListener('click', fetchTicketCounts);
+        
+        // Загрузка данных при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchTicketCounts();
+            // Автоматическое обновление каждые 30 секунд
+            setInterval(fetchTicketCounts, 30000);
+        });
+    </script>
+</body>
+</html> 
