@@ -9,6 +9,8 @@ import com.example.electronic_queue_monolit.domain.model.User;
 import com.example.electronic_queue_monolit.repository.UserRepository;
 import com.example.electronic_queue_monolit.service.UserService;
 import com.example.electronic_queue_monolit.service.base.BaseServiceImpl;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -108,5 +110,14 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserReposito
         ));
 
         return toDTO(repo.save(existingUser));
+    }
+
+    @Override
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof User) {
+            return (User) authentication.getPrincipal();
+        }
+        return null;
     }
 }

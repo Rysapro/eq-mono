@@ -28,6 +28,11 @@ public class PlaceController extends BaseController<Place, PlaceDto, PlaceServic
         return baseService.getPending();
     }
 
+    @GetMapping("/ticket-count-page")
+    public String ticketCountPage() {
+        return "place/ticket-count";
+    }
+
     @Override
     protected String getBasePath() {
         return "place";

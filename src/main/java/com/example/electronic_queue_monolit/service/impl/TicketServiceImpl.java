@@ -8,16 +8,21 @@ import com.example.electronic_queue_monolit.repository.ProvisionRepository;
 import com.example.electronic_queue_monolit.repository.TicketRepository;
 import com.example.electronic_queue_monolit.repository.TicketStatusRepository;
 import com.example.electronic_queue_monolit.repository.base.BaseRepository;
+import com.example.electronic_queue_monolit.repository.WindowRepository;
 import com.example.electronic_queue_monolit.service.ScheduledTaskService;
 import com.example.electronic_queue_monolit.service.TicketService;
+import com.example.electronic_queue_monolit.service.UserService;
 import com.example.electronic_queue_monolit.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.TaskScheduler;
-/*import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;*/
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -36,10 +41,11 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
     private final BaseRepository baseRepository;
     private final TicketRepository ticketRepository;
     private final ScheduledTaskService scheduledTaskService;
+    private final WindowRepository windowRepository;
+    private final UserService userService;
+    private final TaskScheduler taskScheduler;
 
     @Autowired
-    private TaskScheduler taskScheduler;
-
     public TicketServiceImpl(TicketRepository repo, 
                             PlaceRepository placeRepository, 
                             ProvisionRepository provisionRepository, 
@@ -47,7 +53,10 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
                             Counter counter, 
                             @Qualifier("baseRepository") BaseRepository baseRepository, 
                             TicketRepository ticketRepository,
-                            ScheduledTaskService scheduledTaskService) {
+                            ScheduledTaskService scheduledTaskService,
+                            WindowRepository windowRepository,
+                            UserService userService,
+                            TaskScheduler taskScheduler) {
         super(repo);
         this.placeRepository = placeRepository;
         this.provisionRepository = provisionRepository;
@@ -56,6 +65,9 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
         this.baseRepository = baseRepository;
         this.ticketRepository = ticketRepository;
         this.scheduledTaskService = scheduledTaskService;
+        this.windowRepository = windowRepository;
+        this.userService = userService;
+        this.taskScheduler = taskScheduler;
     }
 
     @Override
@@ -145,6 +157,8 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
             dto.setTicketStatus(ticketStatusDto);
         }
         
+
+        
         return dto;
     }
 
@@ -157,7 +171,7 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
                 .orElseThrow(() -> new RuntimeException("Статус с ID 1 не найден"));
 
         int ticketNumber = counter.getNextNumber();
-        String number = generateTicketCode(place.getCode(), provision.getProvisionName(), ticketNumber);
+        String number = generateTicketCode(place.getCode(), provision.getCode(), ticketNumber);
 
         Ticket ticket = new Ticket();
         ticket.setNumber(number);
@@ -258,6 +272,19 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
             dto.setTicketStatus(ticketStatusDto);
         }
         
+        // Добавляем информацию об окне
+        if (ticket.getWindow() != null) {
+            WindowDto windowDto = new WindowDto();
+            windowDto.setId(ticket.getWindow().getId());
+            windowDto.setNumber(ticket.getWindow().getNumber());
+            dto.setWindow(windowDto);
+        }
+        
+
+        /*if (ticket.getProcessingTime() != null) {
+            dto.setProcessingTime(ticket.getProcessingTime().toString());
+        }*/
+
         return dto;
     }
 
@@ -279,16 +306,15 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
                 .collect(Collectors.toList());
     }
 
-   /* //Прием талона (15)
+    //Прием талона (15)
 
     @Override
-    public TicketResponseDto acceptanceTicket(Long id) {
+    public TicketDto acceptanceTicket(Long id, Long windowId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) auth.getPrincipal();
 
         Ticket ticket = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Билет не найден!!!"));
-
         if(ticket.getTicketStatus().getId() == 3L){
             throw new RuntimeException("талон был уже принят или обработан");
         }
@@ -296,14 +322,22 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
                 .orElseThrow(() -> new RuntimeException("Статус Активный с id 2 не найден!!!"));
         ticket.setTicketStatus(newStatus);
         ticket.setOperatorId(currentUser);
+        if (windowId != null) {
+            Window window = windowRepository.findById(windowId)
+                    .orElseThrow(() -> new RuntimeException("Окно не найдено с id: " + windowId));
+            ticket.setWindow(window);
+        }
+
         Ticket updatedTicket = repo.save(ticket);
-        return convertToTicketResponseDto(updatedTicket);
+        return mapToTicketResponseDto(updatedTicket);
     }
 
     //Завершение обработки
 
     @Override
-    public TicketResponseDto completionTicket(Long id){
+    public TicketDto completionTicket(Long id){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) auth.getPrincipal();
 
         Ticket ticket = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Билет не найден!!!"));
@@ -319,11 +353,11 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
         ticket.setProcessingTime(Duration.between(ticket.getUpdateDate(), ticket.getTimeOfFinished()));
 
         Ticket updatedTicket = repo.save(ticket);
-        return convertToTicketResponseDto(updatedTicket);
+        return mapToTicketResponseDto(updatedTicket);
     }
 
     @Override
-    public TicketResponseDto absenceTicket(Long id){
+    public TicketDto absenceTicket(Long id){
         Ticket ticket = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Билет не найден!!!"));
 
@@ -340,7 +374,7 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
             checkAndUpdateStatus(id);
         }, 5, TimeUnit.MINUTES);
 
-        return convertToTicketResponseDto(ticket);
+        return mapToTicketResponseDto(ticket);
     }
     
     private void checkAndUpdateStatus(Long ticketId) {
@@ -357,7 +391,9 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
     // Принятие неявки
 
     @Override
-    public TicketResponseDto getAbsenceTicket(Long id){
+    public TicketDto getAbsenceTicket(Long id){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) auth.getPrincipal();
 
         Ticket ticket = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Билет не найден!!!"));
@@ -366,90 +402,123 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
                 .orElseThrow(() -> new RuntimeException("Статус Активный с id 2 не найден!!!"));
         ticket.setTicketStatus(newStatus);
         repo.save(ticket);
-        return convertToTicketResponseDto(ticket);
+        return mapToTicketResponseDto(ticket);
     }
 
     // Получения всех неявок за последние 5 минут
 
     @Override
-    public List<TicketResponseDto> getAllTicketStatusAbsence(Long placeId) {
+    public List<TicketDto> getAllTicketStatusAbsence(Long placeId) {
         LocalDateTime fiveMinutesAgo = LocalDateTime.now().minusMinutes(5);
 
         return ticketRepository.getAllTicketStatusAbsence(placeId, fiveMinutesAgo)
                 .stream()
-                .map(this::convertToTicketResponseDto)
+                .map(this::mapToTicketResponseDto)
                 .collect(Collectors.toList());
     }
 
+
     //возвращает с пагинацией завершенные талоны (21)
-
     @Override
-    public Page<TicketResponseDto> getTicketStatusFinished(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-
+    public Page<TicketDto> getTicketStatusFinished(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         return ticketRepository.findAllFinishedTickets(startDate, endDate, pageable)
-                .map(this::convertToTicketResponseDto);
+                .map(this::mapToTicketResponseDto);
     }
 
+
     //возвращает с пагинацией по месту завершенные талоны
-
     @Override
-    public Page<TicketResponseDto> getTicketStatusFinishedWithPlace(Long placeId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-
+    public Page<TicketDto> getTicketStatusFinishedWithPlace(Long placeId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         return ticketRepository.findAllFinishedTicketsWithPlace(placeId, startDate, endDate, pageable)
-                .map(this::convertToTicketResponseDto);
+                .map(this::mapToTicketResponseDto);
     }
 
     @Override
     public List<OperatorTicketCountDto> getCountTicketByUser(LocalDateTime startDate, LocalDateTime endDate) {
         return ticketRepository.countProcessedTicketsByOperator(startDate, endDate);
     }
-    
-    // Метод для конвертации Ticket в TicketResponseDto
-    private TicketResponseDto convertToTicketResponseDto(Ticket ticket) {
-        TicketResponseDto dto = new TicketResponseDto();
-        dto.setId(ticket.getId());
-        dto.setNumber(ticket.getNumber());
-        
-        if (ticket.getOperatorId() != null) {
-            UserDto userDto = new UserDto();
-            userDto.setId(ticket.getOperatorId().getId());
-            userDto.setName(ticket.getOperatorId().getName());
-            dto.setOperatorId(userDto);
-        }
-        
-        if (ticket.getPlace() != null) {
-            PlaceDto placeDto = new PlaceDto();
-            placeDto.setId(ticket.getPlace().getId());
-            placeDto.setName(ticket.getPlace().getName());
-            dto.setPlace(placeDto);
-        }
-        
-        if (ticket.getInformation() != null) {
-            InformationDto informationDto = new InformationDto();
-            informationDto.setId(ticket.getInformation().getId());
-            informationDto.setDeclaration(ticket.getInformation().getDeclaration());
-            dto.setInformation(informationDto);
-        }
-        
-        if (ticket.getProvision() != null) {
-            ProvisionDto provisionDto = new ProvisionDto();
-            provisionDto.setId(ticket.getProvision().getId());
-            provisionDto.setProvisionName(ticket.getProvision().getProvisionName());
-            dto.setProvision(provisionDto);
-        }
-        
-        if (ticket.getTicketStatus() != null) {
-            TicketStatusDto ticketStatusDto = new TicketStatusDto();
-            ticketStatusDto.setId(ticket.getTicketStatus().getId());
-            ticketStatusDto.setName(ticket.getTicketStatus().getName());
-            dto.setTicketStatus(ticketStatusDto);
-        }
-        
-        if (ticket.getProcessingTime() != null) {
-            dto.setProcessingTime(ticket.getProcessingTime().toString());
-        }
-        
-        return dto;
+
+    @Override
+    public List<TicketDto> getTicketsByStatus(Long id) {
+        return ticketRepository.findByStatusId(id)
+                .stream()
+                .map(this::mapToTicketResponseDto)
+                .collect(Collectors.toList());
     }
-*/
+
+
+
+
+ /*   @Override
+    public TicketDto assignToWindow(Long ticketId, Long windowId) {
+        // Находим талон
+        Ticket ticket = repo.findById(ticketId)
+                .orElseThrow(() -> new RuntimeException("Талон не найден с id: " + ticketId));
+
+        // Находим окно
+        Window window = windowRepository.findById(windowId)
+                .orElseThrow(() -> new RuntimeException("Окно не найдено с id: " + windowId));
+
+        // Проверка, что талон активный
+        if (ticket.getTicketStatus() == null || ticket.getTicketStatus().getId() != 2L) {
+            throw new RuntimeException("Талон должен иметь статус 'Активный' для назначения на окно");
+        }
+
+        // Назначаем талон на окно
+        window.setProcessedTicket(ticket);
+        windowRepository.save(window);
+
+        // Обновляем талон с информацией о назначенном окне
+        User operator = window.getOperatorId();
+        if (operator != null) {
+            ticket.setOperatorId(operator);
+        }
+
+        // Устанавливаем windowId в талоне
+        ticket.setWindowId(windowId);
+        repo.save(ticket);
+
+        return toDTO(ticket);
+    }
+
+    @Override
+    public TicketDto assignNextTicketToWindow(Long windowId) {
+        // Находим окно
+        Window window = windowRepository.findById(windowId)
+                .orElseThrow(() -> new RuntimeException("Окно не найдено с id: " + windowId));
+
+        // Находим место (МТО) окна
+        Place place = window.getPlace();
+        if (place == null) {
+            throw new RuntimeException("У окна не указано место (МТО)");
+        }
+
+        // Находим первый активный талон в очереди для данного места
+        List<Ticket> activeTickets = ticketRepository.findActiveTicketsForPlace(place.getId());
+
+        if (activeTickets.isEmpty()) {
+            return null; // Нет активных талонов в очереди
+        }
+
+        // Берем первый талон и назначаем его на окно
+        Ticket nextTicket = activeTickets.get(0);
+
+        // Назначаем талон на окно
+        window.setProcessedTicket(nextTicket);
+        windowRepository.save(window);
+
+        // Обновляем талон с информацией о назначенном окне и операторе
+        User operator = window.getOperatorId();
+        if (operator != null) {
+            nextTicket.setOperatorId(operator);
+        }
+
+        // Устанавливаем windowId в талоне
+        nextTicket.setWindowId(windowId);
+        repo.save(nextTicket);
+
+        return toDTO(nextTicket);
+    }
+
+    */
 }

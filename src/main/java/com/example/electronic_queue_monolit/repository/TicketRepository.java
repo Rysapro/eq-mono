@@ -32,7 +32,7 @@ public interface TicketRepository extends BaseRepository<Ticket> {
     @Query("SELECT t FROM Ticket t WHERE (:placeId IS NULL OR t.place.id= :placeId)"+
             "AND (:ticketStatusId IS NULL OR t.ticketStatus.id = :ticketStatusId)")
     List<Ticket> findByPlaceId(@Param("placeId") Long place, @Param("ticketStatusId") Long ticketStatus);
-/*    @Query("SELECT t FROM Ticket t WHERE (:placeId IS NULL OR t.place.id= :placeId) AND t.ticketStatus.id = 5 AND t.updateDate >= :fiveMinutesAgo")
+    @Query("SELECT t FROM Ticket t WHERE (:placeId IS NULL OR t.place.id= :placeId) AND t.ticketStatus.id = 5 AND t.updateDate >= :fiveMinutesAgo")
     List<Ticket> getAllTicketStatusAbsence(@Param("placeId") Long place, @Param("fiveMinutesAgo") LocalDateTime fiveMinutesAgo);
 
     @Query("SELECT t FROM Ticket t WHERE t.ticketStatus.id = 3 AND t.updateDate BETWEEN :startDate AND :endDate")
@@ -43,7 +43,7 @@ public interface TicketRepository extends BaseRepository<Ticket> {
     Page<Ticket> findAllFinishedTicketsWithPlace(@Param("placeId") Long place, @Param("startDate") LocalDateTime startDate,
                                                  @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
-    @Query("SELECT new OperatorTicketCountDto(t.operatorId.name, COUNT(t)) " +
+    @Query("SELECT new com.example.electronic_queue_monolit.domain.dto.OperatorTicketCountDto(t.operatorId.name, COUNT(t)) " +
             "FROM Ticket t " +
             "WHERE t.ticketStatus.id = 3 " +
             "AND t.updateDate BETWEEN :startDate AND :endDate " +
@@ -51,6 +51,12 @@ public interface TicketRepository extends BaseRepository<Ticket> {
     List<OperatorTicketCountDto> countProcessedTicketsByOperator(
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate
-    );*/
+    );
 
+    @Query("SELECT t FROM Ticket t WHERE :ticketStatusId IS NULL OR t.ticketStatus.id = :ticketStatusId")
+    List<Ticket> findByStatusId(@Param("ticketStatusId") Long ticketStatus);
+
+    @Query("SELECT t FROM Ticket t WHERE t.place.id = :placeId AND t.ticketStatus.id = 2 " +
+           "ORDER BY t.timeOfCreateTicket ASC")
+    List<Ticket> findActiveTicketsForPlace(@Param("placeId") Long placeId);
 }

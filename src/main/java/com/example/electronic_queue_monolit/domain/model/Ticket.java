@@ -26,9 +26,7 @@ public class Ticket extends BaseEntity {
     private String number;
 
     private LocalDateTime timeOfFinished;
-    
     private Duration processingTime;
-
     @ManyToOne
     @JoinColumn(name = "users")
     private User operatorId;
@@ -52,6 +50,9 @@ public class Ticket extends BaseEntity {
     @JoinColumn(name = "ticket_status")
     private TicketStatus ticketStatus;
 
+    @ManyToOne
+    @JoinColumn(name = "windows")
+    private Window window;
 
     @Column(name = "created_date")
     private LocalDate createdDate;

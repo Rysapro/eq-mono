@@ -23,21 +23,27 @@ public interface TicketService extends BaseService<Ticket, TicketDto> {
     Page<TicketDto> getPlaceId(Long placeId, Long ticketStatusId, Pageable pageable);
 
     List<TicketDto> getAllPlaceId(Long placeId, Long ticketStatusId);
-  /*
     // Методы для работы с талонами
-    TicketResponseDto acceptanceTicket(Long id);
+    TicketDto acceptanceTicket(Long id, Long windowId);
     
-    TicketResponseDto completionTicket(Long id);
+    TicketDto completionTicket(Long id);
     
-    TicketResponseDto absenceTicket(Long id);
+    TicketDto absenceTicket(Long id);
     
-    TicketResponseDto getAbsenceTicket(Long id);
+    TicketDto getAbsenceTicket(Long id);
     
-    List<TicketResponseDto> getAllTicketStatusAbsence(Long placeId);
+    List<TicketDto> getAllTicketStatusAbsence(Long placeId);
     
-    Page<TicketResponseDto> getTicketStatusFinished(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    Page<TicketDto> getTicketStatusFinished(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
     
-    Page<TicketResponseDto> getTicketStatusFinishedWithPlace(Long placeId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    Page<TicketDto> getTicketStatusFinishedWithPlace(Long placeId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
     
-    List<OperatorTicketCountDto> getCountTicketByUser(LocalDateTime startDate, LocalDateTime endDate);*/
+    List<OperatorTicketCountDto> getCountTicketByUser(LocalDateTime startDate, LocalDateTime endDate);
+
+    List<TicketDto> getTicketsByStatus(Long id);
+    /*
+    // Методы для работы с окнами
+    TicketDto assignToWindow(Long ticketId, Long windowId);
+    
+    TicketDto assignNextTicketToWindow(Long windowId);*/
 }

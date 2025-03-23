@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Административная панель</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <div th:replace="fragments/navigation :: styles"></div>
+</head>
+<body>
+<!-- Подключаем боковую панель, передавая активное меню как параметр -->
+<div th:replace="fragments/navigation :: sidebar('dashboard')"></div>
+
+<!-- Подключаем верхнюю навигационную панель -->
+<div th:replace="fragments/navigation :: navbar"></div>
+
+<main class="main-content">
+    <div class="container-fluid">
+        <div class="row mb-4">
+            <div class="col">
+                <h2>Добро пожаловать</h2>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-xl-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title text-muted mb-0">Всего талонов</h6>
+                        <h2 class="mt-2 mb-0" th:text="${ticketCount ?: 0}">0</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title text-muted mb-0">Активные талоны</h6>
+                        <h2 class="mt-2 mb-0" th:text="${activeTicketCount ?: 0}">0</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title text-muted mb-0">Пользователи</h6>
+                        <h2 class="mt-2 mb-0" th:text="${userCount ?: 0}">0</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title text-muted mb-0">Места</h6>
+                        <h2 class="mt-2 mb-0" th:text="${placeCount ?: 0}">0</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

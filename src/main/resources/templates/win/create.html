@@ -146,6 +146,11 @@
                 <form th:action="@{/win/save}" th:object="${form}" method="post">
 
                     <div class="mb-3">
+                        <label for="number" class="form-label">Номер окна</label>
+                        <input type="text" class="form-control" id="number" th:field="*{number}" placeholder="Введите номер окна">
+                    </div>
+
+                    <div class="mb-3">
                         <label for="place" class="form-label">Место</label>
                         <select class="form-select" id="place" th:field="*{place.id}">
                             <option value="">Выберите место</option>

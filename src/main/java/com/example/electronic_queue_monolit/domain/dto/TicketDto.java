@@ -16,5 +16,5 @@ public class TicketDto{
     private PlaceDto place;
     private InformationDto information;
     private TicketStatusDto ticketStatus;
-
+    private WindowDto window;
 }

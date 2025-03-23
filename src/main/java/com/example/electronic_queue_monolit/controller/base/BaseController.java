@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-public abstract class BaseController<ENTITY, DTO, SERVICE extends BaseService<ENTITY, DTO>> {
+public abstract class BaseController<ENTITY, DTO, SERVICE extends BaseService<ENTITY, DTO>> extends WebBaseController {
 
     protected final SERVICE baseService;
     protected abstract String getBasePath();
