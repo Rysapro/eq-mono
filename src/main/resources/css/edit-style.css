@@ -1,0 +1,18 @@
+.container {
+    max-width: 800px;
+}
+.form-header {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 5px 5px 0 0;
+    border-bottom: 1px solid #dee2e6;
+}
+.form-content {
+    padding: 20px;
+}
+.form-footer {
+    background-color: #f8f9fa;
+    padding: 15px 20px;
+    border-top: 1px solid #dee2e6;
+    border-radius: 0 0 5px 5px;
+}

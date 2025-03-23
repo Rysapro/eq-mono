@@ -21,13 +21,13 @@ public abstract class BaseController<ENTITY, DTO, SERVICE extends BaseService<EN
     public String list(Model model) {
         List<DTO> allItems = baseService.findAll();
         model.addAttribute("items", allItems);
-        return getBasePath() + "/list"; // Возвращаем путь к шаблону с учетом базового пути
+        return getBasePath() + "/list";
     }
 
     @GetMapping("/create")
     public String createForm(Model model) {
-        model.addAttribute("form", createEmptyDto()); // Создаем пустой DTO через абстрактный метод
-        return getBasePath() + "/create"; // Возвращаем путь к шаблону с учетом базового пути
+        model.addAttribute("form", createEmptyDto());
+        return getBasePath() + "/create";
     }
 
     @PostMapping("/save")
@@ -40,7 +40,7 @@ public abstract class BaseController<ENTITY, DTO, SERVICE extends BaseService<EN
     public String editForm(@PathVariable Long id, Model model) {
         DTO dto = baseService.findById(id);
         model.addAttribute("form", dto);
-        return getBasePath() + "/edit"; // Возвращаем путь к шаблону с учетом базового пути
+        return getBasePath() + "/edit";
     }
 
     @PutMapping("/update/{id}")

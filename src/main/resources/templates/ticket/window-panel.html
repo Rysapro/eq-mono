@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель управления окнами</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        .window-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+        .window-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .window-card.active {
+            border-left: 5px solid #0d6efd;
+        }
+        .window-card.inactive {
+            border-left: 5px solid #6c757d;
+        }
+        .current-ticket {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .refresh-section {
+            margin-bottom: 20px;
+        }
+        .window-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        .alert {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">Панель управления окнами</h1>
+        
+        <!-- Сообщения об успехе или ошибке -->
+        <div th:if="${successMessage}" class="alert alert-success" role="alert">
+            <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <span th:text="${errorMessage}"></span>
+        </div>
+        <div th:if="${infoMessage}" class="alert alert-info" role="alert">
+            <span th:text="${infoMessage}"></span>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        Фильтры
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/ticket/window-panel}" method="get" class="row g-3">
+                            <div class="col-md-6">
+                                <label for="placeId" class="form-label">МТО</label>
+                                <select id="placeId" name="placeId" class="form-select">
+                                    <option value="">Все</option>
+                                    <option th:each="place : ${places}" 
+                                            th:value="${place.id}" 
+                                            th:text="${place.name}"
+                                            th:selected="${placeId == place.id}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary">Применить</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-between mb-4">
+            <div class="refresh-section">
+                <button id="refreshButton" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-clockwise"></i> Обновить список
+                </button>
+                <span id="lastUpdateTime"></span>
+            </div>
+            
+            <div>
+                <a href="/win/list" class="btn btn-info">
+                    <i class="bi bi-window"></i> Управление окнами
+                </a>
+                <a href="/ticket/operator-panel" class="btn btn-primary">
+                    <i class="bi bi-ticket"></i> Панель оператора
+                </a>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Окна обслуживания</h2>
+                
+                <div th:if="${#lists.isEmpty(windows)}" class="alert alert-info">
+                    Нет доступных окон для отображения
+                </div>
+                
+                <div class="row">
+                    <div th:each="window : ${windows}" class="col-md-6 mb-4">
+                        <div th:class="'window-card ' + (${window.processedTicket != null ? 'active' : 'inactive'})">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="window-number" th:text="'Окно №' + ${window.number}">Окно №1</span>
+                                </div>
+                                <div>
+                                    <span class="badge bg-primary" th:if="${window.place != null}" th:text="${window.place.name}">МТО</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-2">
+                                <p><strong>Оператор:</strong> <span th:text="${window.operator != null ? window.operator.name : 'Не назначен'}">Оператор</span></p>
+                            </div>
+                            
+                            <div th:if="${window.processedTicket != null}" class="current-ticket">
+                                <h5>Текущий талон</h5>
+                                <p><strong>Номер:</strong> <span th:text="${window.processedTicket.number}">A001</span></p>
+                                <p><strong>Услуга:</strong> <span th:text="${window.processedTicket.provision != null ? window.processedTicket.provision.provisionName : 'Не указано'}">Услуга</span></p>
+                                
+                                <div class="action-buttons">
+                                    <a th:href="@{/ticket/complete/{id}(id=${window.processedTicket.id})}" class="btn btn-success">
+                                        <i class="bi bi-check-circle"></i> Завершить
+                                    </a>
+                                    <a th:href="@{/ticket/absence/{id}(id=${window.processedTicket.id})}" class="btn btn-warning">
+                                        <i class="bi bi-person-x"></i> Отсутствует
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div th:unless="${window.processedTicket != null}" class="mt-3">
+                                <p class="text-muted">Окно свободно</p>
+                                
+                                <div class="action-buttons">
+                                    <a th:href="@{/ticket/next-in-queue/{windowId}(windowId=${window.id})}" class="btn btn-primary">
+                                        <i class="bi bi-person-plus"></i> Вызвать следующего
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <a href="/" class="btn btn-secondary">Вернуться на главную</a>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        // Обновление времени последнего обновления
+        function updateLastUpdateTime() {
+            const now = new Date();
+            const formattedTime = now.toLocaleTimeString();
+            document.getElementById('lastUpdateTime').textContent = 'Последнее обновление: ' + formattedTime;
+        }
+
+        // Функция обновления списка окон
+        function refreshWindowList() {
+            location.reload();
+        }
+
+        // Привязка события к кнопке обновления
+        document.getElementById('refreshButton').addEventListener('click', refreshWindowList);
+
+        // Установка начального времени
+        updateLastUpdateTime();
+
+        // Автоматическое обновление каждые 20 секунд
+        setInterval(refreshWindowList, 20000);
+    </script>
+</body>
+</html> 

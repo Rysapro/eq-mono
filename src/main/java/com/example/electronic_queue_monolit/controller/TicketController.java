@@ -93,13 +93,11 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
                 placeId, informationId, provisionId, ticketStatusId, pageable
         );
         
-        // Добавляем данные для фильтров
         model.addAttribute("places", placeService.findAll());
         model.addAttribute("provisions", provisionService.findAll());
         model.addAttribute("statuses", ticketStatusService.findAll());
         model.addAttribute("informations", informationService.findAll());
         
-        // Добавляем выбранные значения фильтров
         model.addAttribute("placeId", placeId);
         model.addAttribute("informationId", informationId);
         model.addAttribute("provisionId", provisionId);
@@ -107,7 +105,6 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("size", size);
         
-        // Добавляем данные для пагинации
         model.addAttribute("items", tickets.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", tickets.getTotalPages());
@@ -143,39 +140,6 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
             return "redirect:/ticket/operator-panel";
         }
     }
-    
-   /* @GetMapping("/assign-to-window/{ticketId}")
-    public String assignToWindow(
-            @PathVariable Long ticketId,
-            @RequestParam Long windowId,
-            RedirectAttributes redirectAttributes) {
-        try {
-            baseService.assignToWindow(ticketId, windowId);
-            redirectAttributes.addFlashAttribute("successMessage", "Талон успешно назначен на окно");
-            return "redirect:/active-tickets";
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/ticket/operator-panel";
-        }
-    }*/
-    
-   /* @GetMapping("/next-in-queue/{windowId}")
-    public String callNextInQueue(
-            @PathVariable Long windowId,
-            RedirectAttributes redirectAttributes) {
-        try {
-            TicketDto ticket = baseService.assignNextTicketToWindow(windowId);
-            if (ticket != null) {
-                redirectAttributes.addFlashAttribute("successMessage", "Следующий клиент вызван к окну");
-            } else {
-                redirectAttributes.addFlashAttribute("infoMessage", "В очереди нет ожидающих клиентов");
-            }
-            return "redirect:/ticket/operator-panel";
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/ticket/operator-panel";
-        }
-    }*/
     
     @GetMapping("/complete/{id}")
     public String completeTicket(@PathVariable Long id, RedirectAttributes redirectAttributes) {
@@ -346,7 +310,6 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
             Model model,
             @RequestParam(required = false) Long placeId
     ) {
-        // Получаем список окон
         List<WindowDto> windows;
         if (placeId != null) {
             windows = windowService.findByPlaceId(placeId);

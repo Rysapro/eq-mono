@@ -82,13 +82,11 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserReposito
         User existingUser = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
-        // Update basic fields
         existingUser.setName(dto.getName());
         existingUser.setSurname(dto.getSurname());
         existingUser.setPatronymic(dto.getPatronymic());
         existingUser.setBlocked(dto.getBlocked());
 
-        // Update password only if new one is provided
         if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
             existingUser.setPassword(dto.getPassword());
         }
@@ -112,12 +110,4 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserReposito
         return toDTO(repo.save(existingUser));
     }
 
-    @Override
-    public User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof User) {
-            return (User) authentication.getPrincipal();
-        }
-        return null;
-    }
 }

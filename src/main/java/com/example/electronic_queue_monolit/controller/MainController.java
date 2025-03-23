@@ -2,7 +2,6 @@ package com.example.electronic_queue_monolit.controller;
 
 import com.example.electronic_queue_monolit.domain.dto.PlaceDto;
 import com.example.electronic_queue_monolit.domain.dto.TicketDto;
-import com.example.electronic_queue_monolit.domain.dto.WindowDto;
 import com.example.electronic_queue_monolit.controller.base.WebBaseController;
 import com.example.electronic_queue_monolit.service.PlaceService;
 import com.example.electronic_queue_monolit.service.ProvisionService;
@@ -18,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Controller
 @Tag(name = "Главная страница")
@@ -57,10 +55,8 @@ public class MainController extends WebBaseController {
 
     @GetMapping("/active-tickets")
     public String activeTickets(Model model) {
-        // Получаем билеты со статусом 2 (активные)
         List<TicketDto> activeTickets = ticketService.getTicketsByStatus(2L);
         
-        // Группируем билеты по местам (Place)
         Map<PlaceDto, List<TicketDto>> ticketsByPlace = new HashMap<>();
         for (TicketDto ticket : activeTickets) {
             PlaceDto place = ticket.getPlace();
@@ -70,15 +66,12 @@ public class MainController extends WebBaseController {
             ticketsByPlace.get(place).add(ticket);
         }
         
-        // Создаем карту для хранения информации о билетах
         Map<PlaceDto, List<Map<String, Object>>> ticketsWithWindowInfo = new HashMap<>();
         
-        // Для каждого места и списка билетов
         for (Map.Entry<PlaceDto, List<TicketDto>> entry : ticketsByPlace.entrySet()) {
             PlaceDto place = entry.getKey();
             List<TicketDto> tickets = entry.getValue();
             
-            // Создаем список с информацией о билетах для этого места
             List<Map<String, Object>> ticketInfoList = new ArrayList<>();
             
             for (TicketDto ticket : tickets) {

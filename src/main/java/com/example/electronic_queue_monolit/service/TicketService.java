@@ -23,7 +23,7 @@ public interface TicketService extends BaseService<Ticket, TicketDto> {
     Page<TicketDto> getPlaceId(Long placeId, Long ticketStatusId, Pageable pageable);
 
     List<TicketDto> getAllPlaceId(Long placeId, Long ticketStatusId);
-    // Методы для работы с талонами
+
     TicketDto acceptanceTicket(Long id, Long windowId);
     
     TicketDto completionTicket(Long id);
@@ -41,9 +41,4 @@ public interface TicketService extends BaseService<Ticket, TicketDto> {
     List<OperatorTicketCountDto> getCountTicketByUser(LocalDateTime startDate, LocalDateTime endDate);
 
     List<TicketDto> getTicketsByStatus(Long id);
-    /*
-    // Методы для работы с окнами
-    TicketDto assignToWindow(Long ticketId, Long windowId);
-    
-    TicketDto assignNextTicketToWindow(Long windowId);*/
 }

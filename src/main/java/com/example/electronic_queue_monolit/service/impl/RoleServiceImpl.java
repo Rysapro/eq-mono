@@ -8,11 +8,9 @@ import com.example.electronic_queue_monolit.repository.PageRepository;
 import com.example.electronic_queue_monolit.repository.RoleRepository;
 import com.example.electronic_queue_monolit.service.RoleService;
 import com.example.electronic_queue_monolit.service.base.BaseServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -32,11 +30,9 @@ public class RoleServiceImpl extends BaseServiceImpl<Role, RoleDto, RoleReposito
         
         List<PageForRole> pages = new ArrayList<>();
         
-        // Обработка pageId из формы
         if (dto.getPageId() != null) {
             pageRepository.findById(dto.getPageId()).ifPresent(pages::add);
         }
-        // Обработка вложенного объекта page
         else if (dto.getPage() != null && dto.getPage().getId() != null) {
             PageForRole page = new PageForRole();
             page.setId(dto.getPage().getId());
@@ -60,10 +56,8 @@ public class RoleServiceImpl extends BaseServiceImpl<Role, RoleDto, RoleReposito
         if (!entity.getPage().isEmpty()) {
             PageForRole pageEntity = entity.getPage().get(0);
             
-            // Устанавливаем pageId для использования в формах
             dto.setPageId(pageEntity.getId());
             
-            // Устанавливаем вложенный объект page
             PageDto pageDto = new PageDto();
             pageDto.setId(pageEntity.getId());
             pageDto.setName(pageEntity.getName());

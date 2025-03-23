@@ -87,16 +87,12 @@ public class WindowServiceImpl extends BaseServiceImpl<Window, WindowDto, Window
     public WindowDto update(Long id, WindowDto windowDto) {
         Window existingWindow = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Window not found with id: " + id));
-        
-        // Обновляем поля
         existingWindow.setNumber(windowDto.getNumber());
-        
         existingWindow.setPlace(createEntityIfNotNull(
                 windowDto.getPlace() != null ? windowDto.getPlace().getId() : null, placeId -> {
                     return placeRepository.findById(placeId)
                             .orElseThrow(() -> new RuntimeException("Place not found with id: " + placeId));
                 }));
-        
         existingWindow.setOperatorId(createEntityIfNotNull(
                 windowDto.getOperator() != null ? windowDto.getOperator().getId() : null, userId -> {
                     return userRepository.findById(userId)
