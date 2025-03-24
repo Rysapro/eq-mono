@@ -56,7 +56,6 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public String getUsername() {
         String fullName = getFullName();
-        System.out.println("User.getUsername() возвращает: " + fullName);
         return fullName;
     }
 

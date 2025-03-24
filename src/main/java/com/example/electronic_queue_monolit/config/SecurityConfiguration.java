@@ -35,11 +35,9 @@ public class SecurityConfiguration {
         http
                 .csrf(csrf -> {
                     csrf.disable();
-                    System.out.println("CSRF защита отключена");
                 })
                 .cors(cors -> {
                     cors.configurationSource(corsConfigurationSource());
-                    System.out.println("CORS настроен");
                 })
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/login", "/auth/login", "/logout").permitAll();
