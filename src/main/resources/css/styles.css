@@ -1,0 +1,150 @@
+/* Основные стили */
+:root {
+    --primary-color: #4a76a8;
+    --secondary-color: #3c5f84;
+    --accent-color: #6ab7ff;
+    --error-color: #e74c3c;
+    --success-color: #27ae60;
+    --text-color: #333;
+    --light-color: #f5f5f5;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f2f5;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Стили для карточки логина */
+.login-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 500px;
+    overflow: hidden;
+}
+
+.logo {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.logo h1 {
+    margin-bottom: 15px;
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.logo img {
+    width: 70px;
+    height: auto;
+}
+
+.login-form {
+    padding: 30px;
+}
+
+.login-form h2 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border 0.3s;
+}
+
+.form-group input:focus {
+    border-color: var(--accent-color);
+    outline: none;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-login:hover {
+    background-color: var(--secondary-color);
+}
+
+.error-message {
+    color: var(--error-color);
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* Адаптивность */
+@media (max-width: 576px) {
+    .login-card {
+        max-width: 100%;
+    }
+    
+    .logo {
+        padding: 20px;
+    }
+    
+    .login-form {
+        padding: 20px;
+    }
+}
+
+.form-header {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 5px 5px 0 0;
+    border-bottom: 1px solid #dee2e6;
+}
+.form-content {
+    padding: 20px;
+}
+.form-footer {
+    background-color: #f8f9fa;
+    padding: 15px 20px;
+    border-top: 1px solid #dee2e6;
+    border-radius: 0 0 5px 5px;
+} 

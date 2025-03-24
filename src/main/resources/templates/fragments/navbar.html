@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Navigation Bar</title>
+</head>
+<body>
+<!-- Фрагмент для боковой панели -->
+<nav th:fragment="sidebar" class="sidebar">
+    <div class="text-center p-3 mb-3">
+        <h5 class="mb-0">Админ-панель</h5>
+    </div>
+
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/ticket/list}">
+                <i class="bi bi-ticket-perforated"></i>
+                Талоны
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/place/list}">
+                <i class="bi bi-geo-alt"></i>
+                Места
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/provision/list}">
+                <i class="bi bi-gear"></i>
+                Услуги
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" th:href="@{/information/list}">
+                <i class="bi bi-info-circle"></i>
+                Информация
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/user/list}">
+                <i class="bi bi-person"></i>
+                Пользователи
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/role/list}">
+                <i class="bi bi-shield-check"></i>
+                Роли
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/page/list}">
+                <i class="bi bi-file-earmark"></i>
+                Страницы
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/win/list}">
+                <i class="bi bi-window"></i>
+                Окно
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/status/list}">
+                <i class="bi bi-circle"></i>
+                Статусы
+            </a>
+        </li>
+        <li class="nav-item mt-3">
+            <div class="px-3">
+                <h6 class="text-muted">Управление талонами</h6>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/ticket/operator-panel}">
+                <i class="bi bi-headset"></i>
+                Панель оператора
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/ticket/window-panel}">
+                <i class="bi bi-window"></i>
+                Панель окон
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/ticket/recent-absences}">
+                <i class="bi bi-exclamation-triangle"></i>
+                Недавние неявки
+            </a>
+        </li>
+
+        <li class="nav-item mt-3">
+            <div class="px-3">
+                <h6 class="text-muted">Отчеты и статистика</h6>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/ticket/finished-tickets}">
+                <i class="bi bi-clipboard-check"></i>
+                Завершенные талоны
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/ticket/operator-statistics}">
+                <i class="bi bi-bar-chart"></i>
+                Статистика операторов
+            </a>
+        </li>
+    </ul>
+</nav>
+
+
+<!-- Фрагмент для верхней панели навигации -->
+<nav th:fragment="topbar" class="navbar bg-white">
+    <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1">Система управления очередью</span>
+    </div>
+</nav>
+</body>
+</html>

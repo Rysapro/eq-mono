@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Административная панель</title>
+    <title>Генерация талона</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
@@ -46,6 +46,9 @@
             height: 48px;
             box-shadow: 0 2px 4px rgba(0,0,0,.1);
         }
+        .container {
+            max-width: 1200px;
+        }
     </style>
 </head>
 <body>
@@ -56,7 +59,7 @@
 
     <ul class="nav flex-column">
         <li class="nav-item">
-            <a class="nav-link" th:href="@{/ticket/list}">
+            <a class="nav-link active" th:href="@{/ticket/list}">
                 <i class="bi bi-ticket-perforated"></i>
                 Талоны
             </a>
@@ -120,62 +123,77 @@
 
 <main class="main-content">
     <div class="container-fluid">
-        <div class="row mb-4">
-            <div class="col">
-                <h2>Добро пожаловать</h2>
-            </div>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-md-6 col-xl-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h6 class="card-title text-muted mb-0">Всего талонов</h6>
-                        <h2 class="mt-2 mb-0" th:text="${ticketCount ?: 0}">0</h2>
-                    </div>
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2>Генерация талона</h2>
+                    <a th:href="@{/ticket/list}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Назад к списку
+                    </a>
                 </div>
             </div>
 
-            <div class="col-md-6 col-xl-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h6 class="card-title text-muted mb-0">Активные талоны</h6>
-                        <h2 class="mt-2 mb-0" th:text="${activeTicketCount ?: 0}">0</h2>
+            <div class="card-body">
+                <form th:action="@{/ticket/generate}" method="get" class="needs-validation" novalidate>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="placeId" class="form-label">Место</label>
+                                <select id="placeId" name="placeId" class="form-select" required>
+                                    <option value="">Выберите место</option>
+                                    <option th:each="place : ${places}" 
+                                            th:value="${place.id}" 
+                                            th:text="${place.name}"></option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Пожалуйста, выберите место
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="provisionId" class="form-label">Услуга</label>
+                                <select id="provisionId" name="provisionId" class="form-select" required>
+                                    <option value="">Выберите услугу</option>
+                                    <option th:each="provision : ${provisions}" 
+                                            th:value="${provision.id}" 
+                                            th:text="${provision.provisionName}"></option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Пожалуйста, выберите услугу
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-xl-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h6 class="card-title text-muted mb-0">Пользователи</h6>
-                        <h2 class="mt-2 mb-0" th:text="${userCount ?: 0}">0</h2>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Сгенерировать талон
+                        </button>
                     </div>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-xl-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h6 class="card-title text-muted mb-0">Места</h6>
-                        <h2 class="mt-2 mb-0" th:text="${placeCount ?: 0}">0</h2>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Highlight active menu item
-    const path = window.location.pathname;
-    document.querySelectorAll('.nav-link').forEach(link => {
-        if (path.startsWith(link.getAttribute('href'))) {
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-        }
-    });
+    // Валидация формы
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
 </script>
 </body>
-</html>
+</html> 

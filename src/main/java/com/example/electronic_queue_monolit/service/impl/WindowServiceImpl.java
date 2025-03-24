@@ -7,16 +7,26 @@ import com.example.electronic_queue_monolit.domain.dto.WindowDto;
 import com.example.electronic_queue_monolit.domain.model.Place;
 import com.example.electronic_queue_monolit.domain.model.User;
 import com.example.electronic_queue_monolit.domain.model.Window;
+import com.example.electronic_queue_monolit.repository.PlaceRepository;
+import com.example.electronic_queue_monolit.repository.UserRepository;
 import com.example.electronic_queue_monolit.repository.WindowRepository;
 import com.example.electronic_queue_monolit.service.WindowService;
 import com.example.electronic_queue_monolit.service.base.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class WindowServiceImpl extends BaseServiceImpl<Window, WindowDto, WindowRepository> implements WindowService {
 
-    public WindowServiceImpl(WindowRepository repo) {
+    private final PlaceRepository placeRepository;
+    private final UserRepository userRepository;
+
+    public WindowServiceImpl(WindowRepository repo, PlaceRepository placeRepository, UserRepository userRepository) {
         super(repo);
+        this.placeRepository = placeRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -77,26 +87,30 @@ public class WindowServiceImpl extends BaseServiceImpl<Window, WindowDto, Window
     public WindowDto update(Long id, WindowDto windowDto) {
         Window existingWindow = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Window not found with id: " + id));
-
-        // Update fields
         existingWindow.setNumber(windowDto.getNumber());
-
         existingWindow.setPlace(createEntityIfNotNull(
                 windowDto.getPlace() != null ? windowDto.getPlace().getId() : null, placeId -> {
-                    Place place = new Place();
-                    place.setId(placeId);
-                    return place;
-                }
-        ));
-
+                    return placeRepository.findById(placeId)
+                            .orElseThrow(() -> new RuntimeException("Place not found with id: " + placeId));
+                }));
         existingWindow.setOperatorId(createEntityIfNotNull(
                 windowDto.getOperator() != null ? windowDto.getOperator().getId() : null, userId -> {
-                    User user = new User();
-                    user.setId(userId);
-                    return user;
-                }
-        ));
-
+                    return userRepository.findById(userId)
+                            .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+                }));
+        
         return toDTO(repo.save(existingWindow));
+    }
+    
+    @Override
+    public List<WindowDto> findByPlaceId(Long placeId) {
+        return repo.findByPlaceId(placeId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<WindowDto> getAll() {
+        return List.of();
     }
 }

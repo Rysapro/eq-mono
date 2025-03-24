@@ -38,6 +38,10 @@
                 <form th:action="@{/win/update/{id}(id=${form.id})}" th:object="${form}" method="post">
                     <input type="hidden" name="_method" value="PUT">
 
+                    <div class="mb-3">
+                        <label for="number" class="form-label">Номер окна</label>
+                        <input type="text" class="form-control" id="number" th:field="*{number}" placeholder="Введите номер окна">
+                    </div>
                     
                     <div class="mb-3">
                         <label for="placeId" class="form-label">Место</label>

@@ -9,6 +9,8 @@ import com.example.electronic_queue_monolit.domain.model.User;
 import com.example.electronic_queue_monolit.repository.UserRepository;
 import com.example.electronic_queue_monolit.service.UserService;
 import com.example.electronic_queue_monolit.service.base.BaseServiceImpl;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -80,13 +82,11 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserReposito
         User existingUser = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
-        // Update basic fields
         existingUser.setName(dto.getName());
         existingUser.setSurname(dto.getSurname());
         existingUser.setPatronymic(dto.getPatronymic());
         existingUser.setBlocked(dto.getBlocked());
 
-        // Update password only if new one is provided
         if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
             existingUser.setPassword(dto.getPassword());
         }
@@ -109,4 +109,5 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserReposito
 
         return toDTO(repo.save(existingUser));
     }
+
 }

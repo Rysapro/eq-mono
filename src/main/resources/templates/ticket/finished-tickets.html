@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Завершенные талоны</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <div th:replace="fragments/navigation :: styles"></div>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        .ticket-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            border-left: 5px solid #198754;
+            transition: all 0.3s ease;
+        }
+        .ticket-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+<!-- Подключаем боковую панель, передавая активное меню как параметр -->
+<div th:replace="fragments/navigation :: sidebar('finished-tickets')"></div>
+
+<!-- Подключаем верхнюю навигационную панель -->
+<div th:replace="fragments/navigation :: navbar"></div>
+
+<main class="main-content">
+    <div class="container mt-4">
+        <h1 class="mb-4">Завершенные талоны</h1>
+        
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        Параметры отчета
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/ticket/finished-tickets}" method="get" class="row g-3">
+                            <div class="col-md-5">
+                                <label for="startDate" class="form-label">Дата начала</label>
+                                <input type="datetime-local" id="startDate" name="startDate" class="form-control" 
+                                       th:value="${startDate != null ? #temporals.format(startDate, 'yyyy-MM-dd''T''HH:mm') : ''}">
+                            </div>
+                            <div class="col-md-5">
+                                <label for="endDate" class="form-label">Дата окончания</label>
+                                <input type="datetime-local" id="endDate" name="endDate" class="form-control" 
+                                       th:value="${endDate != null ? #temporals.format(endDate, 'yyyy-MM-dd''T''HH:mm') : ''}">
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">Показать</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Результаты</h2>
+                
+                <div th:if="${#lists.isEmpty(tickets)}" class="alert alert-info">
+                    Нет данных для отображения. Пожалуйста, выберите другой диапазон дат.
+                </div>
+                
+                <div th:each="ticket : ${tickets}" class="ticket-card">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h5 class="card-title" th:text="${ticket.number}">Номер талона</h5>
+                            <p class="card-text">
+                                <span class="badge bg-success" th:text="${ticket.ticketStatus != null ? ticket.ticketStatus.name : 'Завершен'}">Статус</span>
+                            </p>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>МТО:</strong> <span th:text="${ticket.place != null ? ticket.place.name : 'Не указано'}">Место</span></p>
+                                    <p><strong>Услуга:</strong> <span th:text="${ticket.provision != null ? ticket.provision.provisionName : 'Не указано'}">Услуга</span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Оператор:</strong> <span th:text="${ticket.operatorId != null ? ticket.operatorId.name : 'Не указан'}">Оператор</span></p>
+                                    <p><strong>Информация:</strong> <span th:text="${ticket.information != null ? ticket.information.declaration : 'Нет'}">Информация</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Пагинация -->
+                <nav th:if="${totalPages > 1}">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/ticket/finished-tickets(page=0, startDate=${startDate}, endDate=${endDate})}">Первая</a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/ticket/finished-tickets(page=${currentPage - 1}, startDate=${startDate}, endDate=${endDate})}">Предыдущая</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+                            th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+                            th:classappend="${currentPage == i ? 'active' : ''}">
+                            <a class="page-link" th:href="@{/ticket/finished-tickets(page=${i}, startDate=${startDate}, endDate=${endDate})}" th:text="${i + 1}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage + 1 >= totalPages ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/ticket/finished-tickets(page=${currentPage + 1}, startDate=${startDate}, endDate=${endDate})}">Следующая</a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage + 1 >= totalPages ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/ticket/finished-tickets(page=${totalPages - 1}, startDate=${startDate}, endDate=${endDate})}">Последняя</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <a href="/ticket/operator-panel" class="btn btn-primary mr-2">Панель оператора</a>
+            <a href="/ticket/finished-tickets-by-place" class="btn btn-info mr-2">Фильтр по МТО</a>
+            <a href="/" class="btn btn-secondary">Вернуться на главную</a>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
