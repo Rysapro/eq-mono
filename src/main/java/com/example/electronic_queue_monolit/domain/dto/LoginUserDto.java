@@ -6,8 +6,6 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class LoginUserDto {
-    private String name;
-    private String surname;
-    private String patronymic;
+    private String username;
     private String password;
 }

@@ -43,90 +43,51 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        String requestURI = request.getRequestURI();
-        
-        if (shouldSkipAuthentication(requestURI)) {
+        final String authHeader = request.getHeader("Authorization");
+        System.out.println("Auth header: " + authHeader);
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("No Auth header or incorrect format");
+
             filterChain.doFilter(request, response);
-            return;
-        }
-        
-        String jwt = extractTokenFromRequest(request);
-        
-        if (jwt == null) {
-            response.sendRedirect("/login");
             return;
         }
 
         try {
+            final String jwt = authHeader.substring(7);
+            System.out.println("Extracted JWT: " + jwt.substring(0, Math.min(10, jwt.length())) + "...");
+
             final String username = jwtService.extractUsername(jwt);
+            System.out.println("Extracted username: " + username);
+
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
             if (username != null && authentication == null) {
-                try {
-                    UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
-                    if (jwtService.isTokenValid(jwt, userDetails)) {
-                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
 
-                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authToken);
-                    } else {
-                        response.sendRedirect("/login");
-                        return;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    response.sendRedirect("/login");
-                    return;
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    System.out.println("Token validation failed");
+
                 }
             }
 
             filterChain.doFilter(request, response);
         } catch (Exception exception) {
+            System.out.println("Exception in filter: " + exception.getMessage());
             exception.printStackTrace();
-            
-            response.sendRedirect("/login");
+
+            handlerExceptionResolver.resolveException(request, response, null, exception);
         }
     }
-    
-    private boolean shouldSkipAuthentication(String requestURI) {
-        return requestURI.equals("/login") || 
-               requestURI.startsWith("/css/") || 
-               requestURI.startsWith("/js/") || 
-               requestURI.startsWith("/img/") ||
-               requestURI.startsWith("/images/") ||
-               requestURI.equals("/favicon.ico") ||
-               requestURI.equals("/logout") ||
-               requestURI.startsWith("/auth/") ||
-               requestURI.equals("/quest") ||
-               requestURI.equals("/active-tickets");
-    }
-    
-    private String extractTokenFromRequest(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            return token;
-        }
-        
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("authToken".equals(cookie.getName()) && cookie.getValue() != null && !cookie.getValue().isEmpty()) {
-                    return cookie.getValue();
-                }
-            }
-            
-         } else {
-            System.out.println("Куки отсутствуют в запросе");
-        }
-        
-        System.out.println("Токен не найден ни в заголовке, ни в куки");
-        return null;
-    }
+
 }

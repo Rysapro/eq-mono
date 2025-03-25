@@ -44,19 +44,14 @@ public class AuthController {
                         HttpServletResponse response,
                         Model model) {
         try {
-            if (loginUserDto.getSurname() == null || loginUserDto.getName() == null ||
-                loginUserDto.getPatronymic() == null || loginUserDto.getPassword() == null) {
+            if (loginUserDto.getUsername() == null ||  loginUserDto.getPassword() == null) {
                 model.addAttribute("error", "Все поля формы должны быть заполнены");
                 return "login";
             }
-            
-            System.out.println("Попытка аутентификации: " + 
-                loginUserDto.getSurname() + " " + 
-                loginUserDto.getName() + " " + 
-                loginUserDto.getPatronymic());
+
                 
             User authenticatedUser = authenticationService.authenticate(loginUserDto);
-            System.out.println("Пользователь аутентифицирован: " + authenticatedUser.getFullName());
+            System.out.println("Пользователь аутентифицирован: " + authenticatedUser.getUsername());
 
             String jwtToken = jwtService.generateToken(authenticatedUser);
             System.out.println("Токен создан: " + jwtToken.substring(0, Math.min(20, jwtToken.length())) + "...");

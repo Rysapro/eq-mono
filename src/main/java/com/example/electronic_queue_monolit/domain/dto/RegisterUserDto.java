@@ -1,13 +1,13 @@
-package com.example.queue2.domain.dto;
+package com.example.electronic_queue_monolit.domain.dto;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
 public class RegisterUserDto {
-    private String email;
-
+    private String username;
     private String password;
+    private RoleDto role;
 
-    private String name;
 
 }

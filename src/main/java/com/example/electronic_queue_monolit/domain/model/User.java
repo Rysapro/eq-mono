@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +20,11 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class User extends BaseEntity implements UserDetails {
+
+    @Column(name = "username")
+    private String username;
 
     @Column(name = "name")
     private String name;
@@ -44,9 +49,7 @@ public class User extends BaseEntity implements UserDetails {
     @JoinColumn(name = "role")
     private Role role;
     
-    public String getFullName() {
-        return surname + " " + name + " " + patronymic;
-    }
+
     
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -55,8 +58,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        String fullName = getFullName();
-        return fullName;
+        return username;
     }
 
     @Override
