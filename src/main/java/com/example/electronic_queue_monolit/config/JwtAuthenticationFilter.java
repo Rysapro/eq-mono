@@ -76,7 +76,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     } else {
-                        System.out.println("Токен недействителен");
                         response.sendRedirect("/login");
                         return;
                     }
@@ -118,11 +117,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                System.out.println("Куки: " + cookie.getName() + " = " + 
-                    (cookie.getValue() != null ? cookie.getValue().substring(0, Math.min(10, cookie.getValue().length())) + "..." : "null"));
-                
                 if ("authToken".equals(cookie.getName()) && cookie.getValue() != null && !cookie.getValue().isEmpty()) {
-                    System.out.println("Токен найден в куки: " + cookie.getValue().substring(0, Math.min(10, cookie.getValue().length())) + "...");
                     return cookie.getValue();
                 }
             }
