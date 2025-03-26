@@ -1,13 +1,12 @@
 package com.example.electronic_queue_monolit.controller.base;
 
-
 import com.example.electronic_queue_monolit.service.base.BaseService;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-public abstract class BaseController<ENTITY, DTO, SERVICE extends BaseService<ENTITY, DTO>> extends WebBaseController {
+public abstract class BaseController<ENTITY, DTO, SERVICE extends BaseService<ENTITY, DTO>> {
 
     protected final SERVICE baseService;
     protected abstract String getBasePath();

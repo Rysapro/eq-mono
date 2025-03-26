@@ -33,6 +33,7 @@
                         <thead>
                         <tr>
                             <th>ID</th>
+                            <th>login</th>
                             <th>Имя</th>
                             <th>Фамилия</th>
                             <th>Отчество</th>
@@ -44,6 +45,7 @@
                         <tbody>
                         <tr th:each="item : ${items}">
                             <td th:text="${item.id}"></td>
+                            <td th:text="${item.username}"></td>
                             <td th:text="${item.name}"></td>
                             <td th:text="${item.surname}"></td>
                             <td th:text="${item.patronymic}"></td>

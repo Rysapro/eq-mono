@@ -23,7 +23,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class User extends BaseEntity implements UserDetails {
 
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     private String username;
 
     @Column(name = "name")
@@ -79,5 +79,21 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public String getFullName() {
+        StringBuilder fullName = new StringBuilder();
+        if (surname != null && !surname.isEmpty()) {
+            fullName.append(surname);
+        }
+        if (name != null && !name.isEmpty()) {
+            if (fullName.length() > 0) fullName.append(" ");
+            fullName.append(name);
+        }
+        if (patronymic != null && !patronymic.isEmpty()) {
+            if (fullName.length() > 0) fullName.append(" ");
+            fullName.append(patronymic);
+        }
+        return fullName.length() > 0 ? fullName.toString() : username;
     }
 }

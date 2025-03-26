@@ -26,24 +26,6 @@ public class AuthenticationController {
         this.authenticationService = authenticationService;
     }
 
-    @GetMapping("/signup")
-    public String showSignupForm(Model model) {
-        model.addAttribute("registerForm", new RegisterUserDto());
-        return "auth/signup";
-    }
-
-    @PostMapping("/signup")
-    public String register(@ModelAttribute("registerForm") RegisterUserDto registerUserDto,
-                          Model model) {
-        try {
-            User registeredUser = authenticationService.signup(registerUserDto);
-            return "redirect:/auth/login?registered=true";
-        } catch (Exception e) {
-            model.addAttribute("error", "Ошибка при регистрации: " + e.getMessage());
-            return "auth/signup";
-        }
-    }
-
     @GetMapping("/login")
     public String showLoginForm(Model model,
                               @RequestParam(value = "error", required = false) String error,

@@ -27,13 +27,6 @@ public class AuthenticationService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
-    public User signup(RegisterUserDto input) {
-        User user = new User()
-                .setUsername(input.getUsername())
-                .setPassword(passwordEncoder.encode(input.getPassword()));
-
-        return userRepository.save(user);
-    }
 
     public User authenticate(LoginUserDto input) {
         authenticationManager.authenticate(
@@ -43,7 +36,13 @@ public class AuthenticationService {
                 )
         );
 
-        return userRepository.findByUsername(input.getUsername())
+        User user = userRepository.findByUsername(input.getUsername())
                 .orElseThrow();
+                
+        System.out.println("Authenticated user: " + user.getUsername());
+        System.out.println("User role: " + (user.getRole() != null ? user.getRole().getName() : "null"));
+        System.out.println("User authorities: " + user.getAuthorities());
+        
+        return user;
     }
 }

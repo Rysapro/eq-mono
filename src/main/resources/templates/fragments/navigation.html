@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
 </head>
@@ -15,8 +16,8 @@
     <div class="p-3 mb-3 border-bottom">
         <div class="d-flex align-items-center mb-2">
             <i class="bi bi-person-circle me-2 fs-5"></i>
-            <span class="fw-bold" th:if="${currentUser != null}" th:text="${currentUser.getFullName()}">ФИО пользователя</span>
-            <span class="fw-bold" th:unless="${currentUser != null}">Гость</span>
+            <span class="fw-bold" sec:authorize="isAuthenticated()" sec:authentication="principal.getUsername()">ФИО пользователя</span>
+            <span class="fw-bold" sec:authorize="!isAuthenticated()">Гость</span>
         </div>
         <a th:href="@{/logout}" class="btn btn-outline-danger btn-sm w-100">
             <i class="bi bi-box-arrow-right me-1"></i> Выход
@@ -24,6 +25,12 @@
     </div>
 
     <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${activeMenu == 'overview' ? 'active' : ''}" th:href="@{/admin-overview}">
+                <i class="bi bi-speedometer2"></i>
+                Обзор
+            </a>
+        </li>
         <li class="nav-item">
             <a class="nav-link" th:classappend="${activeMenu == 'tickets' ? 'active' : ''}" th:href="@{/ticket/list}">
                 <i class="bi bi-ticket-perforated"></i>
@@ -121,10 +128,10 @@
 <nav th:fragment="navbar" class="navbar bg-white">
     <div class="container-fluid">
         <span class="navbar-brand mb-0 h1">Система управления очередью</span>
-        <div class="d-flex align-items-center" th:if="${currentUser != null}">
+        <div class="d-flex align-items-center" sec:authorize="isAuthenticated()">
             <span class="me-3">
                 <i class="bi bi-person-circle"></i>
-                <span th:text="${currentUser.getFullName()}">ФИО пользователя</span>
+                <span sec:authentication="principal.fullName">ФИО пользователя</span>
             </span>
             <a th:href="@{/logout}" class="btn btn-sm btn-outline-secondary">
                 <i class="bi bi-box-arrow-right"></i> Выход

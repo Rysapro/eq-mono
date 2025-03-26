@@ -6,27 +6,35 @@ import com.example.electronic_queue_monolit.domain.dto.UserDto;
 import com.example.electronic_queue_monolit.domain.model.Place;
 import com.example.electronic_queue_monolit.domain.model.Role;
 import com.example.electronic_queue_monolit.domain.model.User;
+import com.example.electronic_queue_monolit.repository.RoleRepository;
 import com.example.electronic_queue_monolit.repository.UserRepository;
 import com.example.electronic_queue_monolit.service.UserService;
 import com.example.electronic_queue_monolit.service.base.BaseServiceImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserRepository> implements UserService {
 
-    public UserServiceImpl(UserRepository repo) {
+    private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
+
+    public UserServiceImpl(UserRepository repo, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         super(repo);
+        this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
     }
 
     @Override
     public User toEntity(UserDto dto) {
         User user = new User();
+        user.setUsername(dto.getUsername());
         user.setName(dto.getName());
         user.setSurname(dto.getSurname());
         user.setPatronymic(dto.getPatronymic());
-        user.setPassword(dto.getPassword());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setBlocked(dto.getBlocked());
         user.setPlace(createEntityIfNotNull(
                 dto.getPlace() != null ? dto.getPlace().getId() : null, id -> {
@@ -35,14 +43,14 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserReposito
                     return place;
                 }
         ));
-        user.setRole(createEntityIfNotNull(
-                dto.getRole() != null ? dto.getRole().getId() : null, id -> {
-                    Role role = new Role();
-                    role.setId(id);
-                    return role;
-                }
-        ));
-
+        
+        if (dto.getRole() != null && dto.getRole().getId() != null) {
+            Role role = roleRepository.findById(dto.getRole().getId())
+                    .orElseThrow(() -> new RuntimeException("Role not found with id: " + dto.getRole().getId()));
+            user.setRole(role);
+        }
+        
+        System.out.println("Creating user with role: " + (user.getRole() != null ? user.getRole().getName() : "null"));
         return user;
     }
 
@@ -54,6 +62,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserReposito
     public UserDto toDTO(User entity) {
         UserDto dto = new UserDto();
         dto.setId(entity.getId());
+        dto.setUsername(entity.getUsername());
         dto.setName(entity.getName());
         dto.setSurname(entity.getSurname());
         dto.setPatronymic(entity.getPatronymic());
@@ -82,13 +91,14 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserReposito
         User existingUser = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
+        existingUser.setUsername(dto.getUsername());
         existingUser.setName(dto.getName());
         existingUser.setSurname(dto.getSurname());
         existingUser.setPatronymic(dto.getPatronymic());
         existingUser.setBlocked(dto.getBlocked());
 
         if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-            existingUser.setPassword(dto.getPassword());
+            existingUser.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
 
         existingUser.setPlace(createEntityIfNotNull(
@@ -99,13 +109,11 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserReposito
                 }
         ));
 
-        existingUser.setRole(createEntityIfNotNull(
-                dto.getRole() != null ? dto.getRole().getId() : null, roleId -> {
-                    Role role = new Role();
-                    role.setId(roleId);
-                    return role;
-                }
-        ));
+        if (dto.getRole() != null && dto.getRole().getId() != null) {
+            Role role = roleRepository.findById(dto.getRole().getId())
+                    .orElseThrow(() -> new RuntimeException("Role not found with id: " + dto.getRole().getId()));
+            existingUser.setRole(role);
+        }
 
         return toDTO(repo.save(existingUser));
     }

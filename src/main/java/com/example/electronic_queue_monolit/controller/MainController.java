@@ -2,13 +2,13 @@ package com.example.electronic_queue_monolit.controller;
 
 import com.example.electronic_queue_monolit.domain.dto.PlaceDto;
 import com.example.electronic_queue_monolit.domain.dto.TicketDto;
-import com.example.electronic_queue_monolit.controller.base.WebBaseController;
+import com.example.electronic_queue_monolit.domain.model.User;
 import com.example.electronic_queue_monolit.service.PlaceService;
 import com.example.electronic_queue_monolit.service.ProvisionService;
 import com.example.electronic_queue_monolit.service.TicketService;
 import com.example.electronic_queue_monolit.service.UserService;
-import com.example.electronic_queue_monolit.service.WindowService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,20 +20,18 @@ import java.util.Map;
 
 @Controller
 @Tag(name = "Главная страница")
-public class MainController extends WebBaseController {
+public class MainController {
 
     private final TicketService ticketService;
     private final UserService userService;
     private final PlaceService placeService;
     private final ProvisionService provisionService;
-    private final WindowService windowService;
 
-    public MainController(TicketService ticketService, UserService userService, PlaceService placeService, ProvisionService provisionService, WindowService windowService) {
+    public MainController(TicketService ticketService, UserService userService, PlaceService placeService, ProvisionService provisionService) {
         this.ticketService = ticketService;
         this.userService = userService;
         this.placeService = placeService;
         this.provisionService = provisionService;
-        this.windowService = windowService;
     }
 
     @GetMapping("/admin-overview")
@@ -42,7 +40,6 @@ public class MainController extends WebBaseController {
         model.addAttribute("activeTicketCount", 0);
         model.addAttribute("userCount", userService.findAll().size());
         model.addAttribute("placeCount", placeService.findAll().size());
-        
         return "admin";
     }
 

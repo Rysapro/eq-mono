@@ -18,6 +18,17 @@
         <div class="form-content">
             <form th:action="@{/user/save}" th:object="${form}" method="post">
                 <div class="mb-4">
+                    <label for="username" class="form-label fw-bold">Логин</label>
+                    <input type="text"
+                           class="form-control form-control-lg"
+                           id="username"
+                           th:field="*{username}"
+                           placeholder="Введите логин пользователя"
+                           required>
+                    <div class="form-text">Введите логин для входа в систему</div>
+                </div>
+
+                <div class="mb-4">
                     <label for="name" class="form-label fw-bold">Имя</label>
                     <input type="text"
                            class="form-control form-control-lg"

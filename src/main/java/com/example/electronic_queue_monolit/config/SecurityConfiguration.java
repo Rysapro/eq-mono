@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -29,59 +28,32 @@ public class SecurityConfiguration {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
-   /* @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/login", "/auth/login", "/logout").permitAll();
-                    auth.requestMatchers("/v3/api-docs/**").permitAll();
-                    auth.requestMatchers("/swagger-ui/**").permitAll();
-                    auth.requestMatchers("/swagger-ui.html").permitAll();
-                    auth.requestMatchers("/quest").permitAll();
-                    auth.requestMatchers("/active-tickets").permitAll();
-
-                    auth.requestMatchers("/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll();
-                    
-                    auth.anyRequest().authenticated();
-                })
-               .formLogin(form -> {
-                    form.disable(); // Отключаем стандартную форму Spring Security
-                })
-                .logout(logout -> {
-                    logout.logoutUrl("/logout");  // URL для выхода из системы
-                    logout.logoutSuccessUrl("/login?logout=true");  // URL для перенаправления после выхода
-                    logout.deleteCookies("authToken");  // Удаление куки при выходе
-                    logout.permitAll();
-                })
-                .sessionManagement(session -> {
-                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-                })
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }*/
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Явно добавьте настройки CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/auth/**").permitAll();
-                    auth.requestMatchers("/v3/api-docs/**").permitAll();
-                    auth.requestMatchers("/swagger-ui/**").permitAll();
-                    auth.requestMatchers("/swagger-ui.html").permitAll();
-                    auth.requestMatchers("/login").permitAll();
+                    auth.requestMatchers("/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/login", "/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll();
+                    auth.requestMatchers("/admin/**", "/users/**").hasRole("ADMIN");     // Доступ только для ADMIN
+                    auth.requestMatchers("/admin-overview").authenticated();        // Общий доступ для аутентифицированных пользователей
                     auth.anyRequest().authenticated();
                 })
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                ).formLogin(form -> {
-                    form.disable(); // Отключаем стандартную форму Spring Security
+                )
+                .formLogin(form -> {
+                    form.loginPage("/auth/login")
+                        .loginProcessingUrl("/auth/login")
+                        .defaultSuccessUrl("/admin-overview")
+                        .failureUrl("/auth/login?error=true")
+                        .permitAll();
+                })
+                .logout(logout -> {
+                    logout.logoutUrl("/auth/logout")
+                        .logoutSuccessUrl("/auth/login?logout=true")
+                        .deleteCookies("authToken")
+                        .permitAll();
                 })
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
