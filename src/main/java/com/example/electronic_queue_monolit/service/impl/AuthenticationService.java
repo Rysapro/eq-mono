@@ -16,24 +16,21 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
 
-    public AuthenticationService(
-            UserRepository userRepository,
-            AuthenticationManager authenticationManager
+    public AuthenticationService(UserRepository userRepository, AuthenticationManager authenticationManager
     ) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
     }
 
     public User authenticate(LoginUserDto input) {
+        User user = userRepository.findByUsername(input.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         input.getUsername(),
                         input.getPassword()
                 )
         );
-
-        User user = userRepository.findByUsername(input.getUsername())
-                .orElseThrow();
 
         return user;
     }

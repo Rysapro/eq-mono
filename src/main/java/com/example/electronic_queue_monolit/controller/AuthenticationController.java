@@ -1,19 +1,16 @@
 package com.example.electronic_queue_monolit.controller;
 
+import com.example.electronic_queue_monolit.domain.dto.LoginResponse;
 import com.example.electronic_queue_monolit.domain.dto.LoginUserDto;
-import com.example.electronic_queue_monolit.domain.dto.RegisterUserDto;
 import com.example.electronic_queue_monolit.domain.model.User;
 import com.example.electronic_queue_monolit.service.impl.AuthenticationService;
 import com.example.electronic_queue_monolit.service.impl.JwtService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/auth")
@@ -27,47 +24,60 @@ public class AuthenticationController {
     }
 
     @GetMapping("/login")
-    public String showLoginForm(Model model,
-                              @RequestParam(value = "error", required = false) String error,
-                              @RequestParam(value = "registered", required = false) String registered) {
+    public String loginPage(Model model,
+                            @RequestParam(value = "error", required = false) String error,
+                            @RequestParam(value = "logout", required = false) String logout) {
+        System.out.println("Запрошена страница логина GET /login" +
+                (error != null ? " с ошибкой" : "") +
+                (logout != null ? " после выхода" : ""));
+
         if (model.getAttribute("loginForm") == null) {
             model.addAttribute("loginForm", new LoginUserDto());
         }
-        
-        if (error != null) {
-            model.addAttribute("error", "Неверные учетные данные");
-        }
-        
-        if (registered != null) {
-            model.addAttribute("success", "Регистрация успешна! Теперь вы можете войти.");
-        }
-        
-        return "auth/login";
+
+        return "login";
     }
 
     @PostMapping("/login")
-    public String authenticate(@ModelAttribute("loginForm") LoginUserDto loginUserDto,
-                             HttpServletResponse response,
-                             Model model) {
+    public String login(@ModelAttribute("loginForm") LoginUserDto loginUserDto,
+                        HttpServletResponse response,
+                        Model model) {
         try {
-            User authenticatedUser = authenticationService.authenticate(loginUserDto);
-            String jwtToken = jwtService.generateToken(authenticatedUser);
+            if (loginUserDto.getUsername() == null || loginUserDto.getPassword() == null) {
+                model.addAttribute("error", "Все поля формы должны быть заполнены");
+                return "login";
+            }
 
-            // Сохраняем токен в куки
+            System.out.println("Попытка аутентификации: " +
+                    loginUserDto.getUsername() + " " +
+                    loginUserDto.getPassword());
+
+            User authenticatedUser = authenticationService.authenticate(loginUserDto);
+            System.out.println("Пользователь аутентифицирован: " + authenticatedUser.getFullName());
+
+            String jwtToken = jwtService.generateToken(authenticatedUser);
+            System.out.println("Токен создан: " + jwtToken.substring(0, Math.min(20, jwtToken.length())) + "...");
+
             Cookie jwtCookie = new Cookie("authToken", jwtToken);
             jwtCookie.setPath("/");
             jwtCookie.setMaxAge((int) (jwtService.getExpirationTime() / 1000));
             jwtCookie.setHttpOnly(true);
             jwtCookie.setSecure(false);
             response.addCookie(jwtCookie);
+            System.out.println("Куки добавлена: " + jwtCookie.getName() + " с путем: " + jwtCookie.getPath() +
+                    ", httpOnly: " + jwtCookie.isHttpOnly() + ", secure: " + jwtCookie.getSecure() +
+                    ", maxAge: " + jwtCookie.getMaxAge());
 
-            // Добавляем токен в заголовок
             response.setHeader("Authorization", "Bearer " + jwtToken);
+            System.out.println("Токен также добавлен в заголовок Authorization");
 
             return "redirect:/admin-overview";
         } catch (Exception e) {
-            model.addAttribute("error", "Ошибка аутентификации: " + e.getMessage());
-            return "auth/login";
+            System.out.println("Ошибка аутентификации: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("error", "Неверное ФИО или пароль");
+            model.addAttribute("loginForm", loginUserDto);
+            return "login";
         }
     }
 
@@ -77,6 +87,10 @@ public class AuthenticationController {
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(0);
         response.addCookie(jwtCookie);
-        return "redirect:/auth/login?logout=true";
+        System.out.println("Куки authToken удалена при выходе из системы");
+
+        return "redirect:/login?logout=true";
     }
+
+
 }

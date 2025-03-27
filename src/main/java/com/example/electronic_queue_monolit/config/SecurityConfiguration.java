@@ -12,6 +12,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+
 import java.util.List;
 
 @Configuration
@@ -20,41 +21,29 @@ public class SecurityConfiguration {
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfiguration(
-            JwtAuthenticationFilter jwtAuthenticationFilter,
-            AuthenticationProvider authenticationProvider
-    ) {
+    public SecurityConfiguration(AuthenticationProvider authenticationProvider, JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.authenticationProvider = authenticationProvider;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/login", "/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll();
-                    auth.requestMatchers("/admin/**", "/users/**").hasRole("ADMIN");     // Доступ только для ADMIN
-                    auth.requestMatchers("/admin-overview").authenticated();        // Общий доступ для аутентифицированных пользователей
+                    auth.requestMatchers("/auth/login","/quest", "/active-tickets", "/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",  "/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll();
+                    
+                    // Доступ только для ADMIN
+                    auth.requestMatchers( "/users/**", "/provision/**", "/role/**", "/place/**").hasAuthority("ADMIN");
+                    
+                    // Доступ для ADMIN и OPERATOR
+                    auth.requestMatchers("/ticket/**", "/win/**", "/information/**").hasAnyAuthority("ADMIN", "OPERATOR");
                     auth.anyRequest().authenticated();
                 })
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .formLogin(form -> {
-                    form.loginPage("/auth/login")
-                        .loginProcessingUrl("/auth/login")
-                        .defaultSuccessUrl("/admin-overview")
-                        .failureUrl("/auth/login?error=true")
-                        .permitAll();
-                })
-                .logout(logout -> {
-                    logout.logoutUrl("/auth/logout")
-                        .logoutSuccessUrl("/auth/login?logout=true")
-                        .deleteCookies("authToken")
-                        .permitAll();
-                })
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -62,18 +51,14 @@ public class SecurityConfiguration {
     }
     
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
         configuration.setAllowedOrigins(List.of("http://localhost:5321"));
         configuration.setAllowedMethods(List.of("GET","POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization","Content-Type", "Cache-Control"));
-        configuration.setExposedHeaders(List.of("Authorization"));
+        configuration.setAllowedHeaders(List.of("Authorization","Content-Type"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
         source.registerCorsConfiguration("/**",configuration);
-
         return source;
     }
 }
