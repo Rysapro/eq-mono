@@ -36,7 +36,7 @@ public class UserController extends BaseController<User, UserDto, UserService> {
 
     @Override
     protected UserDto createEmptyDto() {
-        UserDto dto = new UserDto(null, null, null, null, null, false, null, null);
+        UserDto dto = new UserDto(null, null, null, null, null, null, false, null, null);
         dto.setPlace(new PlaceDto());
         dto.setRole(new RoleDto());
         return dto;

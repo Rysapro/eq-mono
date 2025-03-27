@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -46,9 +45,10 @@ public class SecurityConfiguration {
                     auth.requestMatchers("/swagger-ui.html").permitAll();
                     auth.requestMatchers("/quest").permitAll();
                     auth.requestMatchers("/active-tickets").permitAll();
+                    auth.requestMatchers("/static/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll();
 
-                    auth.requestMatchers("/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll();
-                    
+                    auth.requestMatchers( "/user/**", "/provision/**", "/role/**", "/place/**").hasRole("ADMIN");    //Доступ только для ADMIN
+                    auth.requestMatchers("/ticket/**", "/win/**", "/information/**").hasAnyRole("ADMIN", "OPERATOR");   //Доступ только для OPERATOR и ADMIN
                     auth.anyRequest().authenticated();
                 })
                .formLogin(form -> {

@@ -21,9 +21,9 @@
             <nav class="sidebar-nav">
                 <ul>
                     <li class="active"><a href="#"><i class="icon-dashboard"></i> Главная</a></li>
-                    <li><a th:href="@{/user}"><i class="icon-users"></i> Пользователи</a></li>
-                    <li><a th:href="@{/place}"><i class="icon-places"></i> Места</a></li>
-                    <li><a th:href="@{/role}"><i class="icon-roles"></i> Роли</a></li>
+                    <li><a th:href="@{/templates/user}"><i class="icon-users"></i> Пользователи</a></li>
+                    <li><a th:href="@{/templates/place}"><i class="icon-places"></i> Места</a></li>
+                    <li><a th:href="@{/templates/role}"><i class="icon-roles"></i> Роли</a></li>
                 </ul>
             </nav>
             
@@ -67,19 +67,19 @@
                 <div class="admin-panel">
                     <h3>Админ-панель</h3>
                     <div class="admin-links">
-                        <a th:href="@{/user}" class="admin-card">
+                        <a th:href="@{/templates/user}" class="admin-card">
                             <i class="icon-users"></i>
                             <span>Пользователи</span>
                         </a>
-                        <a th:href="@{/place}" class="admin-card">
+                        <a th:href="@{/templates/place}" class="admin-card">
                             <i class="icon-places"></i>
                             <span>Места</span>
                         </a>
-                        <a th:href="@{/role}" class="admin-card">
+                        <a th:href="@{/templates/role}" class="admin-card">
                             <i class="icon-roles"></i>
                             <span>Роли</span>
                         </a>
-                        <a th:href="@{/ticket}" class="admin-card">
+                        <a th:href="@{/templates/ticket}" class="admin-card">
                             <i class="icon-tickets"></i>
                             <span>Талоны</span>
                         </a>

@@ -28,14 +28,9 @@ public class AuthController {
     public String loginPage(Model model, 
                            @RequestParam(value = "error", required = false) String error,
                            @RequestParam(value = "logout", required = false) String logout) {
-        System.out.println("Запрошена страница логина GET /login" + 
-                           (error != null ? " с ошибкой" : "") + 
-                           (logout != null ? " после выхода" : ""));
-        
         if (model.getAttribute("loginForm") == null) {
             model.addAttribute("loginForm", new LoginUserDto());
         }
-        
         return "login";
     }
 
@@ -49,31 +44,18 @@ public class AuthController {
                 return "login";
             }
             
-            System.out.println("Попытка аутентификации: " + 
-                loginUserDto.getUsername() + " " + loginUserDto.getPassword());
-                
             User authenticatedUser = authenticationService.authenticate(loginUserDto);
-            System.out.println("Пользователь аутентифицирован: " + authenticatedUser.getFullName());
-
             String jwtToken = jwtService.generateToken(authenticatedUser);
-            System.out.println("Токен создан: " + jwtToken.substring(0, Math.min(20, jwtToken.length())) + "...");
-
             Cookie jwtCookie = new Cookie("authToken", jwtToken);
             jwtCookie.setPath("/");
             jwtCookie.setMaxAge((int) (jwtService.getExpirationTime() / 1000));
             jwtCookie.setHttpOnly(true);
             jwtCookie.setSecure(false);
             response.addCookie(jwtCookie);
-            System.out.println("Куки добавлена: " + jwtCookie.getName() + " с путем: " + jwtCookie.getPath() + 
-                ", httpOnly: " + jwtCookie.isHttpOnly() + ", secure: " + jwtCookie.getSecure() +
-                ", maxAge: " + jwtCookie.getMaxAge());
-            
             response.setHeader("Authorization", "Bearer " + jwtToken);
-            System.out.println("Токен также добавлен в заголовок Authorization");
 
             return "redirect:/admin-overview";
         } catch (Exception e) {
-            System.out.println("Ошибка аутентификации: " + e.getMessage());
             e.printStackTrace();
             model.addAttribute("error", "Неверное login или пароль");
             model.addAttribute("loginForm", loginUserDto);
@@ -87,8 +69,7 @@ public class AuthController {
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(0);
         response.addCookie(jwtCookie);
-        System.out.println("Куки authToken удалена при выходе из системы");
-        
+
         return "redirect:/login?logout=true";
     }
 } 

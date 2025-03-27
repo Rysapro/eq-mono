@@ -18,7 +18,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -96,7 +95,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
     private boolean shouldSkipAuthentication(String requestURI) {
         return requestURI.equals("/login") || 
-               requestURI.startsWith("/css/") || 
+               requestURI.startsWith("/static/css/") ||
                requestURI.startsWith("/js/") || 
                requestURI.startsWith("/img/") ||
                requestURI.startsWith("/images/") ||
@@ -126,7 +125,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             System.out.println("Куки отсутствуют в запросе");
         }
         
-        System.out.println("Токен не найден ни в заголовке, ни в куки");
         return null;
     }
 }

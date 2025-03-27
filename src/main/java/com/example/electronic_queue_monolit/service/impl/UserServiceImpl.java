@@ -29,6 +29,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserReposito
     @Override
     public User toEntity(UserDto dto) {
         User user = new User();
+        user.setUsername(dto.getUsername());
         user.setName(dto.getName());
         user.setSurname(dto.getSurname());
         user.setPatronymic(dto.getPatronymic());
@@ -60,6 +61,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserReposito
     public UserDto toDTO(User entity) {
         UserDto dto = new UserDto();
         dto.setId(entity.getId());
+        dto.setUsername(entity.getUsername());
         dto.setName(entity.getName());
         dto.setSurname(entity.getSurname());
         dto.setPatronymic(entity.getPatronymic());
@@ -88,6 +90,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserReposito
         User existingUser = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
+        existingUser.setUsername(dto.getUsername());
         existingUser.setName(dto.getName());
         existingUser.setSurname(dto.getSurname());
         existingUser.setPatronymic(dto.getPatronymic());
