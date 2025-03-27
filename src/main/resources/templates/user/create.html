@@ -18,6 +18,17 @@
         <div class="form-content">
             <form th:action="@{/user/save}" th:object="${form}" method="post">
                 <div class="mb-4">
+                    <label for="surname" class="form-label fw-bold">Имя</label>
+                    <input type="text"
+                           class="form-control form-control-lg"
+                           id="surname"
+                           th:field="*{surname}"
+                           placeholder="Введите login пользователя"
+                           required>
+                    <div class="form-text">Введите login пользователя</div>
+                </div>
+
+                <div class="mb-4">
                     <label for="name" class="form-label fw-bold">Имя</label>
                     <input type="text"
                            class="form-control form-control-lg"

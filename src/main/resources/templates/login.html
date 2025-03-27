@@ -4,24 +4,125 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вход в систему - Электронная очередь</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        .error-message {
-            color: red;
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #ffeeee;
-            border-radius: 4px;
-        }
-        .success-message {
-            color: green;
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #eeffee;
-            border-radius: 4px;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+     <style>
+     body {
+         background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+         min-height: 100vh;
+         margin: 0;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         font-family: 'Roboto', sans-serif;
+     }
+
+     .container {
+         width: 100%;
+         max-width: 400px;
+         padding: 20px;
+     }
+
+     .login-card {
+         background: white;
+         border-radius: 20px;
+         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+         padding: 40px;
+         text-align: center;
+     }
+
+     .logo {
+         margin-bottom: 30px;
+     }
+
+     .logo h1 {
+         color: #2c3e50;
+         font-size: 24px;
+         margin-bottom: 15px;
+         font-weight: 700;
+     }
+
+     .logo img {
+         width: 80px;
+         height: auto;
+         margin-bottom: 20px;
+     }
+
+     .login-form h2 {
+         color: #2c3e50;
+         font-size: 20px;
+         margin-bottom: 30px;
+         font-weight: 500;
+     }
+
+     .form-group {
+         margin-bottom: 20px;
+         text-align: left;
+     }
+
+     .form-group label {
+         display: block;
+         margin-bottom: 8px;
+         color: #34495e;
+         font-size: 14px;
+         font-weight: 500;
+     }
+
+     .form-group input {
+         width: 100%;
+         padding: 12px 15px;
+         border: 2px solid #e0e0e0;
+         border-radius: 8px;
+         font-size: 14px;
+         transition: all 0.3s ease;
+         box-sizing: border-box;
+     }
+
+     .form-group input:focus {
+         border-color: #3498db;
+         outline: none;
+         box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+     }
+
+     .btn-login {
+         width: 100%;
+         padding: 12px;
+         background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+         border: none;
+         border-radius: 8px;
+         color: white;
+         font-size: 16px;
+         font-weight: 500;
+         cursor: pointer;
+         transition: all 0.3s ease;
+     }
+
+     .btn-login:hover {
+         transform: translateY(-2px);
+         box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+     }
+
+     .error-message {
+         background: #fff5f5;
+         color: #e53e3e;
+         padding: 12px;
+         border-radius: 8px;
+         margin-bottom: 20px;
+         font-size: 14px;
+         border-left: 4px solid #e53e3e;
+     }
+
+     .success-message {
+         background: #f0fff4;
+         color: #38a169;
+         padding: 12px;
+         border-radius: 8px;
+         margin-bottom: 20px;
+         font-size: 14px;
+         border-left: 4px solid #38a169;
+     }
+ </style>
+
 </head>
 <body>
     <div class="container">
@@ -34,7 +135,6 @@
             <div class="login-form">
                 <h2>Вход в систему</h2>
                 
-                <!-- Сообщения об ошибках и успешных действиях -->
                 <div th:if="${param.error}" class="error-message">
                     Неверные данные для входа
                 </div>
@@ -43,27 +143,16 @@
                 </div>
                 <div th:if="${error}" class="error-message" th:text="${error}"></div>
                 
-                <!-- Форма входа -->
                 <form th:action="@{/login}" th:object="${loginForm}" method="post">
                     <div class="form-group">
-                        <label for="surname">Фамилия</label>
-                        <input type="text" id="surname" th:field="*{surname}" required 
-                              minlength="2" maxlength="50">
-                    </div>
-                    <div class="form-group">
-                        <label for="name">Имя</label>
-                        <input type="text" id="name" th:field="*{name}" required 
-                              minlength="2" maxlength="50">
-                    </div>
-                    <div class="form-group">
-                        <label for="patronymic">Отчество</label>
-                        <input type="text" id="patronymic" th:field="*{patronymic}" required 
-                              minlength="2" maxlength="50">
+                        <label for="username">Login</label>
+                        <input type="text" id="username" th:field="*{username}" required
+                              minlength="2" maxlength="50" placeholder="Введите Login">
                     </div>
                     <div class="form-group">
                         <label for="password">Пароль</label>
                         <input type="password" id="password" th:field="*{password}" required 
-                              minlength="4" maxlength="100">
+                              minlength="4" maxlength="100" placeholder="Введите ваш пароль">
                     </div>
                     <div class="form-group">
                         <button type="submit" class="btn-login">Войти</button>

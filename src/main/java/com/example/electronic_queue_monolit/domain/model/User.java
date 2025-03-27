@@ -21,6 +21,9 @@ import java.util.List;
 @AllArgsConstructor
 public class User extends BaseEntity implements UserDetails {
 
+    @Column(name = "username")
+    private String username;
+
     @Column(name = "name")
     private String name;
 
@@ -55,8 +58,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        String fullName = getFullName();
-        return fullName;
+        return username;
     }
 
     @Override

@@ -9,8 +9,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 public class ApplicationConfiguration {
@@ -26,28 +25,24 @@ public class ApplicationConfiguration {
             if (username == null || username.trim().isEmpty()) {
                 throw new UsernameNotFoundException("Имя пользователя не может быть пустым");
             }
-            
-            String[] parts = username.split(" ");
-            if (parts.length == 3) {
-                String surname = parts[0];
-                String name = parts[1];
-                String patronymic = parts[2];
+
+
                 try {
-                    return userRepository.findBySurnameAndNameAndPatronymic(surname, name, patronymic)
+                    return userRepository.findByUsername(username)
                             .orElseThrow(() -> {
                                 return new UsernameNotFoundException("Пользователь не найден");
                             });
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
+
             throw new UsernameNotFoundException("Пользователь не найден: " + username);
         };
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
+    BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
