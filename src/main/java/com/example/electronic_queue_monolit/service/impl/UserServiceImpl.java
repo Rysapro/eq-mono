@@ -6,18 +6,24 @@ import com.example.electronic_queue_monolit.domain.dto.UserDto;
 import com.example.electronic_queue_monolit.domain.model.Place;
 import com.example.electronic_queue_monolit.domain.model.Role;
 import com.example.electronic_queue_monolit.domain.model.User;
+import com.example.electronic_queue_monolit.repository.RoleRepository;
 import com.example.electronic_queue_monolit.repository.UserRepository;
 import com.example.electronic_queue_monolit.service.UserService;
 import com.example.electronic_queue_monolit.service.base.BaseServiceImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserRepository> implements UserService {
+    private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
-    public UserServiceImpl(UserRepository repo) {
+    public UserServiceImpl(UserRepository repo, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         super(repo);
+        this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
     }
 
     @Override
