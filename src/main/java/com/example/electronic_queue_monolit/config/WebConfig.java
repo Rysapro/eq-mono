@@ -1,4 +1,4 @@
-package com.example.queue2.config;
+package com.example.electronic_queue_monolit.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
