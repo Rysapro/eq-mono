@@ -47,17 +47,7 @@
                 <form th:action="@{/login}" th:object="${loginForm}" method="post">
                     <div class="form-group">
                         <label for="surname">Фамилия</label>
-                        <input type="text" id="surname" th:field="*{surname}" required 
-                              minlength="2" maxlength="50">
-                    </div>
-                    <div class="form-group">
-                        <label for="name">Имя</label>
-                        <input type="text" id="name" th:field="*{name}" required 
-                              minlength="2" maxlength="50">
-                    </div>
-                    <div class="form-group">
-                        <label for="patronymic">Отчество</label>
-                        <input type="text" id="patronymic" th:field="*{patronymic}" required 
+                        <input type="text" id="surname" th:field="*{username}" required
                               minlength="2" maxlength="50">
                     </div>
                     <div class="form-group">

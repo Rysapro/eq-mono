@@ -44,16 +44,13 @@ public class AuthController {
                         HttpServletResponse response,
                         Model model) {
         try {
-            if (loginUserDto.getSurname() == null || loginUserDto.getName() == null ||
-                loginUserDto.getPatronymic() == null || loginUserDto.getPassword() == null) {
+            if (loginUserDto.getUsername() == null || loginUserDto.getPassword() == null) {
                 model.addAttribute("error", "Все поля формы должны быть заполнены");
                 return "login";
             }
             
             System.out.println("Попытка аутентификации: " + 
-                loginUserDto.getSurname() + " " + 
-                loginUserDto.getName() + " " + 
-                loginUserDto.getPatronymic());
+                loginUserDto.getUsername() + " " + loginUserDto.getPassword());
                 
             User authenticatedUser = authenticationService.authenticate(loginUserDto);
             System.out.println("Пользователь аутентифицирован: " + authenticatedUser.getFullName());
@@ -78,7 +75,7 @@ public class AuthController {
         } catch (Exception e) {
             System.out.println("Ошибка аутентификации: " + e.getMessage());
             e.printStackTrace();
-            model.addAttribute("error", "Неверное ФИО или пароль");
+            model.addAttribute("error", "Неверное login или пароль");
             model.addAttribute("loginForm", loginUserDto);
             return "login";
         }

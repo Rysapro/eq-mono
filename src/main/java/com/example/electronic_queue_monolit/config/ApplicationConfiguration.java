@@ -26,21 +26,17 @@ public class ApplicationConfiguration {
             if (username == null || username.trim().isEmpty()) {
                 throw new UsernameNotFoundException("Имя пользователя не может быть пустым");
             }
-            
-            String[] parts = username.split(" ");
-            if (parts.length == 3) {
-                String surname = parts[0];
-                String name = parts[1];
-                String patronymic = parts[2];
+
+
                 try {
-                    return userRepository.findBySurnameAndNameAndPatronymic(surname, name, patronymic)
+                    return userRepository.findByUsername(username)
                             .orElseThrow(() -> {
                                 return new UsernameNotFoundException("Пользователь не найден");
                             });
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
+
             throw new UsernameNotFoundException("Пользователь не найден: " + username);
         };
     }
