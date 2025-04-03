@@ -415,4 +415,12 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
                 .map(this::mapToTicketResponseDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<TicketDto> getAllTicketsForToday() {
+        return ticketRepository.findAllTicketsForToday()
+                .stream()
+                .map(this::mapToTicketResponseDto)
+                .collect(Collectors.toList());
+    }
 }

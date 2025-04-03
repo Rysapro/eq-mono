@@ -24,6 +24,11 @@
                     <a th:href="@{/user/create}" class="btn btn-primary">
                         <i class="bi bi-plus-lg"></i> Создать пользователя
                     </a>
+
+                    <form action="#" th:action="@{/user/find_user}" method="get" class="d-flex">
+                        <input type="text" name="searchWord" class="form-control me-2" placeholder="Поиск по имени, фамилии, отчеству или логину" />
+                        <button type="submit" class="btn btn-outline-primary">Поиск</button>
+                    </form>
                 </div>
             </div>
 
@@ -45,7 +50,7 @@
                         <tbody>
                         <tr th:each="item : ${items}">
                             <td th:text="${item.id}"></td>
-                            <td th:text="${item.surname}"></td>
+                            <td th:text="${item.username}"></td>
                             <td th:text="${item.name}"></td>
                             <td th:text="${item.surname}"></td>
                             <td th:text="${item.patronymic}"></td>

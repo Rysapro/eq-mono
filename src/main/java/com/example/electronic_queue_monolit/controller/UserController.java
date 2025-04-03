@@ -14,6 +14,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/user")
@@ -66,4 +69,12 @@ public class UserController extends BaseController<User, UserDto, UserService> {
         model.addAttribute("places", placeService.findAll());
         return getBasePath() + "/create";
     }
+
+    @GetMapping("/find_user")
+    public String searchUser(@RequestParam String searchWord, Model model) {
+        List<User> users = baseService.searchUser(searchWord);
+        model.addAttribute("users", users);
+        return getBasePath() + "/find_user";
+    }
+
 }

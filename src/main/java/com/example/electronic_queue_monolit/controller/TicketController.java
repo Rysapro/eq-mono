@@ -205,6 +205,13 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
         return "ticket/operator-panel";
     }
     
+    @GetMapping("/services")
+    public String showServices(@RequestParam Long placeId, Model model) {
+        model.addAttribute("place", placeService.findById(placeId));
+        model.addAttribute("provisions", provisionService.findAll());
+        return "services";
+    }
+    
     @GetMapping("/recent-absences")
     public String recentAbsences(
             Model model,

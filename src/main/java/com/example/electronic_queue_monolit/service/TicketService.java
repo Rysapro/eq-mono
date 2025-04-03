@@ -41,4 +41,6 @@ public interface TicketService extends BaseService<Ticket, TicketDto> {
     List<OperatorTicketCountDto> getCountTicketByUser(LocalDateTime startDate, LocalDateTime endDate);
 
     List<TicketDto> getTicketsByStatus(Long id);
+    
+    List<TicketDto> getAllTicketsForToday();
 }
