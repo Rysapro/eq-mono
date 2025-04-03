@@ -59,4 +59,7 @@ public interface TicketRepository extends BaseRepository<Ticket> {
     @Query("SELECT t FROM Ticket t WHERE t.place.id = :placeId AND t.ticketStatus.id = 2 " +
            "ORDER BY t.timeOfCreateTicket ASC")
     List<Ticket> findActiveTicketsForPlace(@Param("placeId") Long placeId);
+
+    @Query("SELECT t FROM Ticket t WHERE t.createdDate = CURRENT_DATE ORDER BY t.timeOfCreateTicket ASC")
+    List<Ticket> findAllTicketsForToday();
 }

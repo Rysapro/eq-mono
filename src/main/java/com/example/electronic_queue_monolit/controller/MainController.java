@@ -46,16 +46,21 @@ public class MainController extends WebBaseController {
         return "admin";
     }
 
-    @GetMapping("/quest")
+    @GetMapping("/")
     public String index(Model model) {
         model.addAttribute("places", placeService.findAll());
-        model.addAttribute("provisions", provisionService.findAll());
         return "select";
+    }
+
+    @GetMapping("/quest")
+    public String quest(Model model) {
+        return "redirect:/";
     }
 
     @GetMapping("/active-tickets")
     public String activeTickets(Model model) {
         List<TicketDto> activeTickets = ticketService.getTicketsByStatus(2L);
+        List<TicketDto> todayTickets = ticketService.getAllTicketsForToday();
         
         Map<PlaceDto, List<TicketDto>> ticketsByPlace = new HashMap<>();
         for (TicketDto ticket : activeTickets) {
@@ -84,6 +89,7 @@ public class MainController extends WebBaseController {
         }
         
         model.addAttribute("activeTicketsByPlace", ticketsWithWindowInfo);
+        model.addAttribute("todayTickets", todayTickets);
         return "quest/active-tickets";
     }
 } 

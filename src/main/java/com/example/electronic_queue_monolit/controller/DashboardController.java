@@ -34,7 +34,7 @@ public class DashboardController extends WebBaseController {
         return "redirect:/login";
     }
     
-    @GetMapping("/")
+    @GetMapping("/admin")
     public String home() {
         return "redirect:/admin-overview";
     }

@@ -9,16 +9,42 @@
         body {
             background-color: #f8f9fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding-top: 20px;
+            padding-top: 0;
+            margin: 0;
         }
         
         .header {
             background-color: #0d6efd;
             color: white;
-            padding: 20px 0;
-            margin-bottom: 40px;
+            padding: 10px 0;
+            margin: 0;
             text-align: center;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        
+        .refresh-button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        
+        .refresh-time {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin-left: 10px;
         }
         
         .active-ticket-card {
@@ -30,6 +56,35 @@
             padding: 25px;
             transition: all 0.3s ease;
             animation: pulse 2s infinite;
+        }
+        
+        .today-ticket-card {
+            background-color: white;
+            border-radius: 8px;
+            border-left: 5px solid #6c757d;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 5px;
+            padding: 5px;
+        }
+        
+        .today-ticket-card.status-1 {
+            border-left-color: #ffc107; /* Ожидание */
+        }
+        
+        .today-ticket-card.status-2 {
+            border-left-color: #0d6efd; /* Активный */
+        }
+        
+        .today-ticket-card.status-3 {
+            border-left-color: #198754; /* Завершенный */
+        }
+        
+        .today-ticket-card.status-4 {
+            border-left-color: #dc3545; /* Отмененный */
+        }
+        
+        .today-ticket-card.status-5 {
+            border-left-color: #6c757d; /* Неявка */
         }
         
         @keyframes pulse {
@@ -53,12 +108,26 @@
             color: #0d6efd;
         }
         
+        .today-ticket-number {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #0d6efd;
+            text-align: center;
+            display: block;
+            width: 100%;
+        }
+        
         .ticket-info {
             font-size: 1.1rem;
             color: #495057;
         }
         
-        .ticket-info strong {
+        .today-ticket-info {
+            font-size: 0.9rem;
+            color: #495057;
+        }
+        
+        .ticket-info strong, .today-ticket-info strong {
             color: #212529;
         }
         
@@ -76,12 +145,6 @@
             margin: 20px 0 40px;
         }
         
-        .refresh-time {
-            margin-top: 10px;
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-        
         .no-tickets-message {
             text-align: center;
             padding: 50px 20px;
@@ -90,67 +153,88 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         
-        .footer {
-            margin-top: 50px;
-            padding: 20px 0;
-            background-color: #f1f3f5;
-            text-align: center;
-            color: #6c757d;
-        }
-        
         .tickets-by-place {
             margin-bottom: 40px;
+        }
+        
+        .today-tickets-column {
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            padding: 15px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        
+        .today-tickets-header {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #343a40;
+            text-align: center;
+        }
+        
+        .row {
+            margin-top: 30px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container-fluid p-0">
         <div class="header">
             <h1>Активные талоны</h1>
-            <p class="lead">Текущие талоны на обслуживании</p>
+            <div class="d-flex align-items-center">
+                <button id="refreshButton" class="refresh-button">
+                    <i class="bi bi-arrow-clockwise"></i> Обновить
+                </button>
+                <div id="lastUpdateTime" class="refresh-time">--:--:--</div>
+            </div>
         </div>
         
-        <div class="refresh-section">
-            <button id="refreshButton" class="btn btn-outline-primary">
-                <i class="bi bi-arrow-clockwise"></i> Обновить данные
-            </button>
-            <div id="lastUpdateTime" class="refresh-time">Последнее обновление: --:--:--</div>
-        </div>
-        
-        <div th:if="${#lists.isEmpty(activeTicketsByPlace)}" class="no-tickets-message">
-            <h3>В данный момент нет активных талонов</h3>
-            <p>Пожалуйста, проверьте позже или обратитесь к сотруднику</p>
-        </div>
-        
-        <div th:unless="${#lists.isEmpty(activeTicketsByPlace)}" th:each="entry : ${activeTicketsByPlace}" class="tickets-by-place">
-            <div class="place-title" th:text="${entry.key.name}">Название МТО</div>
+        <div class="row">
+            <!-- Колонка с сегодняшними билетами -->
+            <div class="col-lg-2">
+                <div class="today-tickets-column">
+                    <div class="today-tickets-header">Все талоны за сегодня</div>
+                    
+                    <div th:if="${#lists.isEmpty(todayTickets)}" class="no-tickets-message">
+                        <h5>Нет талонов на сегодня</h5>
+                    </div>
+                    
+                    <div th:unless="${#lists.isEmpty(todayTickets)}" th:each="ticket : ${todayTickets}" 
+                         th:class="'today-ticket-card status-' + ${ticket.ticketStatus.id}">
+                        <div class="today-ticket-number" th:text="${ticket.number}">A001</div>
+                    </div>
+                </div>
+            </div>
             
-            <div class="row">
-                <div th:each="ticketInfo : ${entry.value}" class="col-lg-6">
-                    <div class="active-ticket-card">
-                        <div class="row">
-                            <div class="col-md-5 d-flex align-items-center justify-content-center">
-                                <div class="ticket-number" th:text="${ticketInfo.ticket.number}">A001</div>
-                            </div>
-                            <div class="col-md-7">
-                                <div class="ticket-info">
-                                  <p><strong>Окно:</strong> <span th:text="${ticketInfo.ticket.window != null ? (ticketInfo.ticket.window.number != null ? ticketInfo.ticket.window.number : 'Не указано') : 'Не указано'}">Окно</span></p>
+            <!-- Колонка с активными билетами -->
+            <div class="col-lg-10">
+                <div th:if="${#lists.isEmpty(activeTicketsByPlace)}" class="no-tickets-message">
+                    <h3>В данный момент нет активных талонов</h3>
+                    <p>Пожалуйста, проверьте позже или обратитесь к сотруднику</p>
+                </div>
+                
+                <div th:unless="${#lists.isEmpty(activeTicketsByPlace)}" th:each="entry : ${activeTicketsByPlace}" class="tickets-by-place">
+                    <div class="place-title" th:text="${entry.key.name}">Название МТО</div>
+                    
+                    <div class="row">
+                        <div th:each="ticketInfo : ${entry.value}" class="col-lg-6">
+                            <div class="active-ticket-card">
+                                <div class="row">
+                                    <div class="col-md-5 d-flex align-items-center justify-content-center">
+                                        <div class="ticket-number" th:text="${ticketInfo.ticket.number}">A001</div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="ticket-info">
+                                          <p><strong>Окно:</strong> <span th:text="${ticketInfo.ticket.window != null ? (ticketInfo.ticket.window.number != null ? ticketInfo.ticket.window.number : 'Не указано') : 'Не указано'}">Окно</span></p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="mt-4 text-center">
-            <a href="/quest" class="btn btn-primary">Вернуться на главную</a>
-        </div>
-    </div>
-    
-    <div class="footer">
-        <div class="container">
-            <p>© 2023 Электронная очередь. Все права защищены.</p>
         </div>
     </div>
     
@@ -160,7 +244,7 @@
         function updateLastUpdateTime() {
             const now = new Date();
             const formattedTime = now.toLocaleTimeString();
-            document.getElementById('lastUpdateTime').textContent = 'Последнее обновление: ' + formattedTime;
+            document.getElementById('lastUpdateTime').textContent = formattedTime;
         }
 
         // Функция обновления списка талонов

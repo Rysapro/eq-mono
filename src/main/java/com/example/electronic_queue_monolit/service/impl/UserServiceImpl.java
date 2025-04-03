@@ -15,15 +15,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserRepository> implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
 
-    public UserServiceImpl(UserRepository repo, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository repo, PasswordEncoder passwordEncoder, RoleRepository roleRepository, UserRepository userRepository) {
         super(repo);
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -33,7 +38,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserReposito
         user.setName(dto.getName());
         user.setSurname(dto.getSurname());
         user.setPatronymic(dto.getPatronymic());
-        user.setPassword(dto.getPassword());
+        user.setPassword(dto.getPassword() != null ? passwordEncoder.encode(dto.getPassword()) : null);
         user.setBlocked(dto.getBlocked());
         user.setPlace(createEntityIfNotNull(
                 dto.getPlace() != null ? dto.getPlace().getId() : null, id -> {
@@ -65,7 +70,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserReposito
         dto.setName(entity.getName());
         dto.setSurname(entity.getSurname());
         dto.setPatronymic(entity.getPatronymic());
-        dto.setPassword(entity.getPassword());
+                    dto.setPassword(entity.getPassword());
         dto.setBlocked(entity.getBlocked());
         
         if (entity.getPlace() != null) {
@@ -97,7 +102,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserReposito
         existingUser.setBlocked(dto.getBlocked());
 
         if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-            existingUser.setPassword(dto.getPassword());
+            existingUser.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
 
         existingUser.setPlace(createEntityIfNotNull(
@@ -118,5 +123,11 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserDto, UserReposito
 
         return toDTO(repo.save(existingUser));
     }
+
+    @Override
+    public List<User> searchUser(String searchWord) {
+        return userRepository.searchByFields(searchWord);
+    }
+
 
 }

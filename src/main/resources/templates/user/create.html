@@ -17,96 +17,104 @@
 
         <div class="form-content">
             <form th:action="@{/user/save}" th:object="${form}" method="post">
-                <div class="mb-4">
-                    <label for="surname" class="form-label fw-bold">Имя</label>
-                    <input type="text"
-                           class="form-control form-control-lg"
-                           id="surname"
-                           th:field="*{surname}"
-                           placeholder="Введите login пользователя"
-                           required>
-                    <div class="form-text">Введите login пользователя</div>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label for="username" class="form-label fw-bold">login</label>
+                        <input type="text"
+                               class="form-control form-control-lg"
+                               id="username"
+                               th:field="*{username}"
+                               placeholder="Введите login пользователя"
+                               required>
+                        <div class="form-text">Введите login пользователя</div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <label for="name" class="form-label fw-bold">Имя</label>
+                        <input type="text"
+                               class="form-control form-control-lg"
+                               id="name"
+                               th:field="*{name}"
+                               placeholder="Введите имя пользователя"
+                               required>
+                        <div class="form-text">Введите имя пользователя</div>
+                    </div>
                 </div>
 
-                <div class="mb-4">
-                    <label for="name" class="form-label fw-bold">Имя</label>
-                    <input type="text"
-                           class="form-control form-control-lg"
-                           id="name"
-                           th:field="*{name}"
-                           placeholder="Введите имя пользователя"
-                           required>
-                    <div class="form-text">Введите имя пользователя</div>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label for="surname" class="form-label fw-bold">Фамилия</label>
+                        <input type="text"
+                               class="form-control form-control-lg"
+                               id="surname"
+                               th:field="*{surname}"
+                               placeholder="Введите фамилию пользователя"
+                               required>
+                        <div class="form-text">Введите фамилию пользователя</div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <label for="patronymic" class="form-label fw-bold">Отчество</label>
+                        <input type="text"
+                               class="form-control form-control-lg"
+                               id="patronymic"
+                               th:field="*{patronymic}"
+                               placeholder="Введите отчество пользователя">
+                        <div class="form-text">Введите отчество пользователя</div>
+                    </div>
                 </div>
 
-                <div class="mb-4">
-                    <label for="surname" class="form-label fw-bold">Фамилия</label>
-                    <input type="text"
-                           class="form-control form-control-lg"
-                           id="surname"
-                           th:field="*{surname}"
-                           placeholder="Введите фамилию пользователя"
-                           required>
-                    <div class="form-text">Введите фамилию пользователя</div>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label for="password" class="form-label fw-bold">Пароль</label>
+                        <input type="password"
+                               class="form-control form-control-lg"
+                               id="password"
+                               th:field="*{password}"
+                               placeholder="Введите пароль"
+                               required>
+                        <div class="form-text">Введите пароль для нового пользователя</div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <label for="blocked" class="form-label fw-bold">Статус</label>
+                        <select class="form-select form-select-lg"
+                                id="blocked"
+                                th:field="*{blocked}">
+                            <option th:value="false">Активен</option>
+                            <option th:value="true">Заблокирован</option>
+                        </select>
+                        <div class="form-text">Выберите статус пользователя</div>
+                    </div>
                 </div>
 
-                <div class="mb-4">
-                    <label for="patronymic" class="form-label fw-bold">Отчество</label>
-                    <input type="text"
-                           class="form-control form-control-lg"
-                           id="patronymic"
-                           th:field="*{patronymic}"
-                           placeholder="Введите отчество пользователя">
-                    <div class="form-text">Введите отчество пользователя</div>
-                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label for="role" class="form-label fw-bold">Роль</label>
+                        <select class="form-select form-select-lg"
+                                id="role"
+                                th:field="*{role.id}"
+                                required>
+                            <option value="">-- Выберите роль --</option>
+                            <option th:each="roleItem : ${roles}"
+                                    th:value="${roleItem.id}"
+                                    th:text="${roleItem.name}"></option>
+                        </select>
+                        <div class="form-text">Выберите роль пользователя</div>
+                    </div>
 
-                <div class="mb-4">
-                    <label for="password" class="form-label fw-bold">Пароль</label>
-                    <input type="password"
-                           class="form-control form-control-lg"
-                           id="password"
-                           th:field="*{password}"
-                           placeholder="Введите пароль"
-                           required>
-                    <div class="form-text">Введите пароль для нового пользователя</div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="blocked" class="form-label fw-bold">Статус</label>
-                    <select class="form-select form-select-lg"
-                            id="blocked"
-                            th:field="*{blocked}">
-                        <option th:value="false">Активен</option>
-                        <option th:value="true">Заблокирован</option>
-                    </select>
-                    <div class="form-text">Выберите статус пользователя</div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="role" class="form-label fw-bold">Роль</label>
-                    <select class="form-select form-select-lg"
-                            id="role"
-                            th:field="*{role.id}"
-                            required>
-                        <option value="">-- Выберите роль --</option>
-                        <option th:each="roleItem : ${roles}"
-                                th:value="${roleItem.id}"
-                                th:text="${roleItem.name}"></option>
-                    </select>
-                    <div class="form-text">Выберите роль пользователя</div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="place" class="form-label fw-bold">Место</label>
-                    <select class="form-select form-select-lg"
-                            id="place"
-                            th:field="*{place.id}">
-                        <option value="">-- Выберите место --</option>
-                        <option th:each="placeItem : ${places}"
-                                th:value="${placeItem.id}"
-                                th:text="${placeItem.name}"></option>
-                    </select>
-                    <div class="form-text">Выберите место пользователя</div>
+                    <div class="col-md-6 mb-4">
+                        <label for="place" class="form-label fw-bold">Место</label>
+                        <select class="form-select form-select-lg"
+                                id="place"
+                                th:field="*{place.id}">
+                            <option value="">-- Выберите место --</option>
+                            <option th:each="placeItem : ${places}"
+                                    th:value="${placeItem.id}"
+                                    th:text="${placeItem.name}"></option>
+                        </select>
+                        <div class="form-text">Выберите место пользователя</div>
+                    </div>
                 </div>
 
                 <div class="form-footer d-flex justify-content-between">

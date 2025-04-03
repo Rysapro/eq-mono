@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
 </head>
@@ -24,91 +24,91 @@
     </div>
 
     <ul class="nav flex-column">
-        <li class="nav-item">
+        <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'OPERATOR')">
             <a class="nav-link" th:classappend="${activeMenu == 'tickets' ? 'active' : ''}" th:href="@{/ticket/list}">
                 <i class="bi bi-ticket-perforated"></i>
                 Талоны
             </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
             <a class="nav-link" th:classappend="${activeMenu == 'places' ? 'active' : ''}" th:href="@{/place/list}">
                 <i class="bi bi-geo-alt"></i>
                 Места
             </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
             <a class="nav-link" th:classappend="${activeMenu == 'provisions' ? 'active' : ''}" th:href="@{/provision/list}">
                 <i class="bi bi-gear"></i>
                 Услуги
             </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'OPERATOR')">
             <a class="nav-link" th:classappend="${activeMenu == 'information' ? 'active' : ''}" th:href="@{/information/list}">
                 <i class="bi bi-info-circle"></i>
                 Информация
             </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
             <a class="nav-link" th:classappend="${activeMenu == 'users' ? 'active' : ''}" th:href="@{/user/list}">
                 <i class="bi bi-person"></i>
                 Пользователи
             </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
             <a class="nav-link" th:classappend="${activeMenu == 'roles' ? 'active' : ''}" th:href="@{/role/list}">
                 <i class="bi bi-shield-check"></i>
                 Роли
             </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
             <a class="nav-link" th:classappend="${activeMenu == 'pages' ? 'active' : ''}" th:href="@{/page/list}">
                 <i class="bi bi-file-earmark"></i>
                 Страницы
             </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'OPERATOR')">
             <a class="nav-link" th:classappend="${activeMenu == 'windows' ? 'active' : ''}" th:href="@{/win/list}">
                 <i class="bi bi-window"></i>
                 Окно
             </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
             <a class="nav-link" th:classappend="${activeMenu == 'statuses' ? 'active' : ''}" th:href="@{/status/list}">
                 <i class="bi bi-circle"></i>
                 Статусы
             </a>
         </li>
         
-        <li class="nav-item mt-3">
+        <li class="nav-item mt-3" sec:authorize="hasAnyRole('ADMIN', 'OPERATOR')">
             <div class="px-3">
                 <h6 class="text-muted">Управление талонами</h6>
             </div>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'OPERATOR')">
             <a class="nav-link" th:classappend="${activeMenu == 'operator-panel' ? 'active' : ''}" th:href="@{/ticket/operator-panel}">
                 <i class="bi bi-headset"></i>
                 Панель оператора
             </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'OPERATOR')">
             <a class="nav-link" th:classappend="${activeMenu == 'recent-absences' ? 'active' : ''}" th:href="@{/ticket/recent-absences}">
                 <i class="bi bi-exclamation-triangle"></i>
                 Недавние неявки
             </a>
         </li>
         
-        <li class="nav-item mt-3">
+        <li class="nav-item mt-3" sec:authorize="hasAnyRole('ADMIN', 'OPERATOR')">
             <div class="px-3">
                 <h6 class="text-muted">Отчеты и статистика</h6>
             </div>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'OPERATOR')">
             <a class="nav-link" th:classappend="${activeMenu == 'finished-tickets' ? 'active' : ''}" th:href="@{/ticket/finished-tickets}">
                 <i class="bi bi-clipboard-check"></i>
                 Завершенные талоны
             </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'OPERATOR')">
             <a class="nav-link" th:classappend="${activeMenu == 'operator-statistics' ? 'active' : ''}" th:href="@{/ticket/operator-statistics}">
                 <i class="bi bi-bar-chart"></i>
                 Статистика операторов
@@ -146,6 +146,7 @@
             box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
             width: 280px;
             background-color: #f8f9fa;
+            overflow-y: auto;
         }
         .sidebar .nav-link {
             font-weight: 500;

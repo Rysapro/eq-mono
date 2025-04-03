@@ -20,7 +20,7 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
-        .service-card {
+        .place-card {
             height: 180px;
             border-radius: 15px;
             margin-bottom: 25px;
@@ -37,25 +37,25 @@
             border: 2px solid transparent;
         }
         
-        .service-card:hover {
+        .place-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
             border-color: #0d6efd;
         }
         
-        .service-card i {
+        .place-card i {
             font-size: 2.5rem;
             margin-bottom: 15px;
             color: #0d6efd;
         }
         
-        .service-card h4 {
-            font-size: 1.1rem;
+        .place-card h3 {
+            font-size: 1.3rem;
             font-weight: 600;
             margin-bottom: 5px;
         }
         
-        .service-card p {
+        .place-card p {
             font-size: 0.9rem;
             color: #6c757d;
         }
@@ -68,55 +68,15 @@
             color: #6c757d;
         }
         
-        .success-message {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-        }
-        
-        .success-message h2 {
-            color: #198754;
-            margin-bottom: 20px;
-        }
-        
-        .success-message .ticket-number {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #0d6efd;
-            margin: 20px 0;
-        }
-        
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 900;
-        }
-        
         .operator-section {
             text-align: right;
             margin-bottom: 20px;
         }
         
-        .place-header {
+        .places-title {
             margin-top: 30px;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 30px;
+            text-align: center;
             color: #212529;
         }
     </style>
@@ -125,7 +85,7 @@
     <div class="header">
         <div class="container">
             <h1>Электронная очередь</h1>
-            <p class="lead">Выберите услугу для получения талона</p>
+            <p class="lead">Выберите место обслуживания</p>
         </div>
     </div>
 
@@ -134,31 +94,19 @@
             <a href="/ticket/operator-panel" class="btn btn-outline-primary">Вход для операторов</a>
         </div>
         
-        <div th:each="place : ${places}">
-            <h2 class="place-header" th:text="${place.name}">Название МТО</h2>
-            
-            <div class="row">
-                <div th:each="provision : ${provisions}" th:if="${provision.place != null && provision.place.id == place.id}" class="col-md-4 col-sm-6">
-                    <a th:href="@{/ticket/generate(placeId=${place.id}, provisionId=${provision.id})}" class="text-decoration-none">
-                        <div class="service-card">
-                            <i class="bi bi-card-checklist"></i>
-                            <h4 th:text="${provision.provisionName}">Название услуги</h4>
-                            <p>Нажмите для получения талона</p>
-                        </div>
-                    </a>
-                </div>
+        <h2 class="places-title">Доступные места обслуживания</h2>
+        
+        <div class="row">
+            <div th:each="place : ${places}" class="col-md-4 col-sm-6">
+                <a th:href="@{/ticket/services(placeId=${place.id})}" class="text-decoration-none">
+                    <div class="place-card">
+                        <i class="bi bi-building"></i>
+                        <h3 th:text="${place.name}">Название места</h3>
+                        <p>Нажмите для выбора услуги</p>
+                    </div>
+                </a>
             </div>
         </div>
-    </div>
-    
-    <div class="overlay" id="overlay"></div>
-    
-    <div class="success-message" id="successMessage">
-        <h2>Талон успешно создан!</h2>
-        <p>Ваш номер в очереди:</p>
-        <div class="ticket-number" th:if="${ticket != null}" th:text="${ticket.number}">A001</div>
-        <p>Пожалуйста, ожидайте вызова на табло</p>
-        <button class="btn btn-primary w-100 mt-3" onclick="closeMessage()">ОК</button>
     </div>
     
     <div class="footer">
@@ -168,25 +116,5 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script th:inline="javascript">
-        // Показываем сообщение об успешном создании талона, если оно есть
-        document.addEventListener('DOMContentLoaded', function() {
-            const ticket = /*[[${ticket}]]*/ null;
-            if (ticket) {
-                showSuccessMessage();
-            }
-        });
-        
-        function showSuccessMessage() {
-            document.getElementById('overlay').style.display = 'block';
-            document.getElementById('successMessage').style.display = 'block';
-        }
-        
-        function closeMessage() {
-            document.getElementById('overlay').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'none';
-            window.location.href = '/';  // перезагружаем страницу
-        }
-    </script>
 </body>
 </html> 
