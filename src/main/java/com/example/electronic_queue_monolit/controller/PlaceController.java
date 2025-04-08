@@ -42,4 +42,6 @@ public class PlaceController extends BaseController<Place, PlaceDto, PlaceServic
     protected PlaceDto createEmptyDto() {
         return new PlaceDto(null, null, null, null);
     }
+
+
 }

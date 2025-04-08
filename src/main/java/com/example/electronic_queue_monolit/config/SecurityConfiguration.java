@@ -11,8 +11,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
 import java.util.List;
+
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
+
 
 @Configuration
 @EnableWebSecurity
@@ -30,28 +34,89 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(request -> {
+                    var corsConfiguration = new CorsConfiguration();
+                    corsConfiguration.setAllowedOriginPatterns(List.of("*"));
+                    corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    corsConfiguration.setAllowedHeaders(List.of("*"));
+                    corsConfiguration.setAllowCredentials(true);
+                    return corsConfiguration;
+                }))
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers("/login").permitAll()
 
-        http
-                .csrf(csrf -> {
-                    csrf.disable();
-                })
-                .cors(cors -> {
-                    cors.configurationSource(corsConfigurationSource());
-                })
-                .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/login", "/auth/login", "/logout").permitAll();
-                    auth.requestMatchers("/v3/api-docs/**").permitAll();
-                    auth.requestMatchers("/swagger-ui/**").permitAll();
-                    auth.requestMatchers("/swagger-ui.html").permitAll();
-                    auth.requestMatchers("/quest").permitAll();
-                    auth.requestMatchers("/active-tickets").permitAll();
-                    auth.requestMatchers("/static/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll();
+                        .requestMatchers(
+                                "/quest",
+                                "/ticket/select/**",
+                                "/active-tickets",
+                                "/ticket/**",
+                                "/generate-form",
+                                "/provision/**", "/js/**", "/img/**", "/favicon.ico"
+                        ).permitAll()
 
-                    auth.requestMatchers( "/user/**", "/provision/**", "/role/**", "/place/**").hasRole("ADMIN");    //Доступ только для ADMIN
-                    auth.requestMatchers("/ticket/**", "/win/**", "/information/**").hasAnyRole("ADMIN", "OPERATOR");   //Доступ только для OPERATOR и ADMIN
-                    auth.anyRequest().authenticated();
-                })
-               .formLogin(form -> {
+                        .requestMatchers(
+                                "/information/findBySearchName",
+                                "/information/findAll",
+                                "/information/findById/{id}"
+                        ).hasAnyRole("OPERATOR", "ADMIN")
+                        .requestMatchers("/api/information/**").hasAnyRole("ADMIN")
+
+                        .requestMatchers("/page/**").hasRole("ADMIN")
+
+                        .requestMatchers(
+                                "/place/findBySearchName",
+                                "/place/findAll",
+                                "/place/pending-count",
+                                "/place/findById/{id}",
+                                "/place/active-tickets",
+                                "/place/getPlacesByObjectForPlacesId").permitAll()
+                        .requestMatchers("/place/**").hasRole("ADMIN")
+
+                        .requestMatchers(
+                                "/provision/findBySearchName",
+                                "/provision/findAll",
+                                "/provision/findById/{id}",
+                                "/provision/by-place").permitAll()
+                        .requestMatchers("/provision/**").hasAnyRole("ADMIN","OPERATOR")
+
+                        .requestMatchers(
+                                "/role/findBySearchName",
+                                "/role/findAll",
+                                "/role/findById/{id}").hasAnyRole("ADMIN","OPERATOR")
+                        .requestMatchers("/role/**").hasRole("ADMIN")
+
+                        .requestMatchers(
+                                "/ticket/generate",
+                                "/ticket/pending-by-place-paged").permitAll()
+                        .requestMatchers("/ticket/**").hasAnyRole("ADMIN","OPERATOR")
+
+                        .requestMatchers(
+                                "/ticket-statuses/findBySearchName",
+                                "/ticket-statuses/findAll",
+                                "/ticket-statuses/findById/{id}"
+                        ).hasAnyRole("OPERATOR","ADMIN")
+                        .requestMatchers("/ticket-statuses/**").hasRole("ADMIN")
+
+                        .requestMatchers("/user/findBySearchName",
+                                "/user/findAll",
+                                "/user/findById/{id}").hasRole("ADMIN")
+                        .requestMatchers("/user/save", "/user/update/{id}").hasAnyRole("ADMIN")
+                        .requestMatchers("/user/delete/{id}").hasRole("ADMIN")
+
+                        .requestMatchers(
+                                "/window/findAll",
+                                "/window/by-place").permitAll()
+                        .requestMatchers(
+                                "/window/findBySearchName",
+                                "/window/findById/{id}"
+                        ).hasAnyRole("ADMIN","OPERATOR")
+                        .requestMatchers("/window/**").hasRole("ADMIN")
+
+                        .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/endpoint", "/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated())
+                .formLogin(form -> {
                     form.disable(); // Отключаем стандартную форму Spring Security
                 })
                 .logout(logout -> {
@@ -61,28 +126,13 @@ public class SecurityConfiguration {
                     logout.permitAll();
                 })
                 .sessionManagement(session -> {
-                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                    session.sessionCreationPolicy(STATELESS);
                 })
+                .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
-    
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:5321"));
-        configuration.setAllowedMethods(List.of("GET","POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization","Content-Type", "Cache-Control"));
-        configuration.setExposedHeaders(List.of("Authorization"));
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
-        source.registerCorsConfiguration("/**",configuration);
-
-        return source;
-    }
 }
 

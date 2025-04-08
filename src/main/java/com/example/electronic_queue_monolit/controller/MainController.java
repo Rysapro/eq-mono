@@ -46,16 +46,12 @@ public class MainController extends WebBaseController {
         return "admin";
     }
 
-    @GetMapping("/")
+    @GetMapping("/quest")
     public String index(Model model) {
         model.addAttribute("places", placeService.findAll());
-        return "select";
+        return "/select";
     }
 
-    @GetMapping("/quest")
-    public String quest(Model model) {
-        return "redirect:/";
-    }
 
     @GetMapping("/active-tickets")
     public String activeTickets(Model model) {

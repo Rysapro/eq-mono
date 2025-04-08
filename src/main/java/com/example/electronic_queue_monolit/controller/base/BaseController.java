@@ -17,6 +17,13 @@ public abstract class BaseController<ENTITY, DTO, SERVICE extends BaseService<EN
         this.baseService = service;
     }
 
+    @GetMapping("/findById/{id}")
+    public String findById(@PathVariable Long id, Model model) {
+        DTO dto = baseService.findById(id);
+        model.addAttribute("item", dto);
+        return getBasePath() + "/view";
+    }
+
     @GetMapping("/list")
     public String list(Model model) {
         List<DTO> allItems = baseService.findAll();
