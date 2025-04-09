@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- Фрагмент для одного поля ввода -->
+
+
+    <div th:fragment="input-field(fieldName, label, placeholder)">
+        <div class="mb-4">
+            <label th:for="${fieldName}" class="form-label fw-bold" th:text="${label}">Label</label>
+            <input type="text"
+                   class="form-control form-control-lg"
+                   th:id="${fieldName}"
+                   th:field="*{__${fieldName}__}"
+                   th:placeholder="${placeholder}"
+                   required>
+            <div class="form-text" th:text="${placeholder}">Help text</div>
+        </div>
+    </div>
+
+    <!-- Фрагмент для строки с двумя полями -->
+    <div th:fragment="input-row(fieldName1, label1, placeholder1, fieldName2, label2, placeholder2)">
+        <div class="row">
+            <div class="col-md-6">
+                <div th:replace="~{fragments/form-input :: input-field(${fieldName1}, ${label1}, ${placeholder1})}"></div>
+            </div>
+            <div class="col-md-6">
+                <div th:replace="~{fragments/form-input :: input-field(${fieldName2}, ${label2}, ${placeholder2})}"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Фрагмент для select поля -->
+    <div th:fragment="select-field(fieldName, label, helpText, items, itemValue, itemText)">
+        <div class="mb-4">
+            <label th:for="${fieldName}" class="form-label fw-bold" th:text="${label}">Label</label>
+            <select class="form-select form-select-lg"
+            th:id="${fieldName}"
+            th:field="*{__${fieldName}__}"
+            required>
+                <option value="">-- Выберите значение --</option>
+                <option th:each="item : ${__${items}__}"
+                th:value="${item.__${itemValue}__}"
+                th:text="${item.__${itemText}__}"></option>
+            </select>
+            <div class="form-text" th:text="${helpText}">Help text</div>
+        </div>
+    </div>
+
+    <!-- Фрагмент для строки с двумя select полями -->
+    <div th:fragment="select-row(fieldName1, label1, helpText1, items1, itemValue1, itemText1, 
+                                fieldName2, label2, helpText2, items2, itemValue2, itemText2)">
+        <div class="row">
+            <div class="col-md-6">
+                <div th:replace="~{fragments/form-input :: select-field(${fieldName1}, ${label1}, ${helpText1}, ${items1}, ${itemValue1}, ${itemText1})}"></div>
+            </div>
+            <div class="col-md-6">
+                <div th:replace="~{fragments/form-input :: select-field(${fieldName2}, ${label2}, ${helpText2}, ${items2}, ${itemValue2}, ${itemText2})}"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html> 
