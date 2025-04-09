@@ -45,6 +45,11 @@
                             <td th:text="${item.page != null ? item.page.name : ''}"></td>
                             <td>
                                 <div class="btn-group">
+                                    <a th:href="@{/role/findById/{id}(id=${item.id})}"
+                                       class="btn btn-sm btn-outline-info"
+                                       title="Просмотр">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
                                     <a th:href="@{/role/edit/{id}(id=${item.id})}"
                                        class="btn btn-sm btn-outline-primary"
                                        title="Редактировать">

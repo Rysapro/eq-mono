@@ -59,6 +59,11 @@
                             <td th:text="${item.operator != null ? item.operator.name : 'Не назначен'}"></td>
                             <td>
                                 <div class="btn-group">
+                                    <a th:href="@{/win/findById/{id}(id=${item.id})}"
+                                       class="btn btn-sm btn-outline-info"
+                                       title="Просмотр">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
                                     <a th:href="@{/win/edit/{id}(id=${item.id})}"
                                        class="btn btn-sm btn-outline-primary"
                                        title="Редактировать">
