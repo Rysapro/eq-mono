@@ -1,135 +1,82 @@
+<!--<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+<div th:replace="~{fragments/base-create :: body(
+        title='Создание пользователя',
+        action=@{/user/save},
+        object=${form},
+        content=~{::content}
+    )}">
+    <th:block th:fragment="content">
+        &lt;!&ndash; Input для username &ndash;&gt;
+        <div th:replace="~{fragments/form-input :: input-field(
+                'username',
+                'Логин',
+                'Введите логин пользователя')}">
+        </div>
+
+        &lt;!&ndash; Input для password &ndash;&gt;
+        <div th:replace="~{fragments/form-input :: input-field(
+                'password',
+                'Пароль',
+                'Введите пароль')}">
+        </div>
+
+        &lt;!&ndash; Select для роли &ndash;&gt;
+        <div th:replace="~{fragments/form-input :: select-field('role.id', 'Роль', 'Выберите роль пользователя', 'roles', 'id', 'name')}"></div>
+    </th:block>
+</div>
+</body>
+</html>-->
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Создание пользователя</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-</head>
+<head th:replace="~{fragments/head :: head}"></head>
 <body class="bg-light">
-<div class="container mt-5">
+<div class="container mt-7">
     <div class="card shadow-sm">
-        <div class="form-header">
-            <h2 class="mb-0">Создание пользователя</h2>
-            <p class="text-muted mt-2 mb-0">Заполните данные нового пользователя</p>
-        </div>
-
+        <div th:replace="~{fragments/form-header :: form-header('Создание пользователя', 'Заполните данные нового пользователя')}"></div>
         <div class="form-content">
             <form th:action="@{/user/save}" th:object="${form}" method="post">
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <label for="username" class="form-label fw-bold">login</label>
-                        <input type="text"
-                               class="form-control form-control-lg"
-                               id="username"
-                               th:field="*{username}"
-                               placeholder="Введите login пользователя"
-                               required>
-                        <div class="form-text">Введите login пользователя</div>
-                    </div>
 
-                    <div class="col-md-6 mb-4">
-                        <label for="name" class="form-label fw-bold">Имя</label>
-                        <input type="text"
-                               class="form-control form-control-lg"
-                               id="name"
-                               th:field="*{name}"
-                               placeholder="Введите имя пользователя"
-                               required>
-                        <div class="form-text">Введите имя пользователя</div>
-                    </div>
-                </div>
+                <div th:replace="~{fragments/form-input :: input-row(
+                    'username', 'Login', 'Введите Login пользователя',
+                    'name', 'Имя', 'Введите имя пользователя'
+                )}"></div>
+
+                <div th:replace="~{fragments/form-input :: input-row(
+                    'surname', 'Фамилия', 'Введите фамилию пользователя',
+                    'patronymic', 'Отчество', 'Введите отчество пользователя'
+                )}"></div>
 
                 <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <label for="surname" class="form-label fw-bold">Фамилия</label>
-                        <input type="text"
-                               class="form-control form-control-lg"
-                               id="surname"
-                               th:field="*{surname}"
-                               placeholder="Введите фамилию пользователя"
-                               required>
-                        <div class="form-text">Введите фамилию пользователя</div>
+                    <div class="col-md-6">
+                        <div th:replace="~{fragments/form-input :: input-field('password','Пароль','Введите пароль для нового пользователя')}"></div>
                     </div>
-
-                    <div class="col-md-6 mb-4">
-                        <label for="patronymic" class="form-label fw-bold">Отчество</label>
-                        <input type="text"
-                               class="form-control form-control-lg"
-                               id="patronymic"
-                               th:field="*{patronymic}"
-                               placeholder="Введите отчество пользователя">
-                        <div class="form-text">Введите отчество пользователя</div>
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            <label for="blocked" class="form-label fw-bold">Статус</label>
+                            <select class="form-select form-select-lg"
+                                    id="blocked"
+                                    th:field="*{blocked}">
+                                <option th:value="false">Активен</option>
+                                <option th:value="true">Заблокирован</option>
+                            </select>
+                            <div class="form-text">Выберите статус пользователя</div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <label for="password" class="form-label fw-bold">Пароль</label>
-                        <input type="password"
-                               class="form-control form-control-lg"
-                               id="password"
-                               th:field="*{password}"
-                               placeholder="Введите пароль"
-                               required>
-                        <div class="form-text">Введите пароль для нового пользователя</div>
-                    </div>
+                <div th:replace="~{fragments/form-input :: select-row(
+                    'role.id', 'Роль', 'Выберите роль пользователя', 'roles', 'id', 'name',
+                    'place.id', 'Место', 'Выберите место пользователя', 'places', 'id', 'name'
+                )}"></div>
 
-                    <div class="col-md-6 mb-4">
-                        <label for="blocked" class="form-label fw-bold">Статус</label>
-                        <select class="form-select form-select-lg"
-                                id="blocked"
-                                th:field="*{blocked}">
-                            <option th:value="false">Активен</option>
-                            <option th:value="true">Заблокирован</option>
-                        </select>
-                        <div class="form-text">Выберите статус пользователя</div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <label for="role" class="form-label fw-bold">Роль</label>
-                        <select class="form-select form-select-lg"
-                                id="role"
-                                th:field="*{role.id}"
-                                required>
-                            <option value="">-- Выберите роль --</option>
-                            <option th:each="roleItem : ${roles}"
-                                    th:value="${roleItem.id}"
-                                    th:text="${roleItem.name}"></option>
-                        </select>
-                        <div class="form-text">Выберите роль пользователя</div>
-                    </div>
-
-                    <div class="col-md-6 mb-4">
-                        <label for="place" class="form-label fw-bold">Место</label>
-                        <select class="form-select form-select-lg"
-                                id="place"
-                                th:field="*{place.id}">
-                            <option value="">-- Выберите место --</option>
-                            <option th:each="placeItem : ${places}"
-                                    th:value="${placeItem.id}"
-                                    th:text="${placeItem.name}"></option>
-                        </select>
-                        <div class="form-text">Выберите место пользователя</div>
-                    </div>
-                </div>
-
-                <div class="form-footer d-flex justify-content-between">
-                    <a th:href="@{/user/list}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i> Назад к списку
-                    </a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-lg"></i> Создать пользователя
-                    </button>
-                </div>
             </form>
         </div>
+        <div th:replace="fragments/form-footer :: form-footer('/user')"></div>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -43,14 +43,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
-        
+
         if (shouldSkipAuthentication(requestURI)) {
             filterChain.doFilter(request, response);
             return;
         }
-        
+
         String jwt = extractTokenFromRequest(request);
-        
+
         if (jwt == null) {
             response.sendRedirect("/login");
             return;
@@ -88,31 +88,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (Exception exception) {
             exception.printStackTrace();
-            
+
             response.sendRedirect("/login");
         }
     }
-    
+
     private boolean shouldSkipAuthentication(String requestURI) {
-        return requestURI.equals("/login") || 
-               requestURI.startsWith("/static/css/") ||
-               requestURI.startsWith("/js/") || 
-               requestURI.startsWith("/img/") ||
-               requestURI.startsWith("/images/") ||
-               requestURI.equals("/favicon.ico") ||
-               requestURI.equals("/logout") ||
-               requestURI.startsWith("/auth/") ||
-               requestURI.equals("/quest") ||
-               requestURI.equals("/active-tickets");
+        return requestURI.equals("/login") ||
+                requestURI.startsWith("/static/css/") ||
+                requestURI.startsWith("/js/") ||
+                requestURI.startsWith("/img/") ||
+                requestURI.startsWith("/images/") ||
+                requestURI.equals("/favicon.ico") ||
+                requestURI.equals("/logout") ||
+                requestURI.startsWith("/auth/") ||
+                requestURI.equals("/quest") ||
+                requestURI.startsWith("/ticket/select/") ||
+                requestURI.equals("/active-tickets");
     }
-    
+
     private String extractTokenFromRequest(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             return token;
         }
-        
+
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -120,11 +121,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     return cookie.getValue();
                 }
             }
-            
-         } else {
+
+        } else {
             System.out.println("Куки отсутствуют в запросе");
         }
-        
+
         return null;
     }
 }

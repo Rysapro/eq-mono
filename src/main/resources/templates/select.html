@@ -90,15 +90,14 @@
     </div>
 
     <div class="container">
-        <div class="operator-section">
-            <a href="/ticket/operator-panel" class="btn btn-outline-primary">Вход для операторов</a>
-        </div>
-        
+
         <h2 class="places-title">Доступные места обслуживания</h2>
-        
+
+
+
         <div class="row">
             <div th:each="place : ${places}" class="col-md-4 col-sm-6">
-                <a th:href="@{/ticket/services(placeId=${place.id})}" class="text-decoration-none">
+                <a th:href="@{/ticket/select/services(placeId=${place.id})}" class="text-decoration-none">
                     <div class="place-card">
                         <i class="bi bi-building"></i>
                         <h3 th:text="${place.name}">Название места</h3>
