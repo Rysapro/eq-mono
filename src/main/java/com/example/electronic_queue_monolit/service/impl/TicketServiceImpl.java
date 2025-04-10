@@ -391,14 +391,14 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
                 .collect(Collectors.toList());
     }
 
-    @Override       //возвращает с пагинацией завершенные талоны (21)
-    public Page<TicketDto> getTicketStatusFinished(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+    @Override
+    public Page<TicketDto> getTicketStatusFinished(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {      //возвращает с пагинацией завершенные талоны (21)
         return ticketRepository.findAllFinishedTickets(startDate, endDate, pageable)
                 .map(this::mapToTicketResponseDto);
     }
 
-    @Override    //возвращает с пагинацией по месту завершенные талоны
-    public Page<TicketDto> getTicketStatusFinishedWithPlace(Long placeId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+    @Override
+    public Page<TicketDto> getTicketStatusFinishedWithPlace(Long placeId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {      //возвращает с пагинацией по месту завершенные талоны
         return ticketRepository.findAllFinishedTicketsWithPlace(placeId, startDate, endDate, pageable)
                 .map(this::mapToTicketResponseDto);
     }
@@ -423,4 +423,14 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
                 .map(this::mapToTicketResponseDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<TicketDto> activeTickets() {
+        return ticketRepository.findActiveTicketsForToday()
+                .stream()
+                .map(this::mapToTicketResponseDto)
+                .collect(Collectors.toList());
+    }
+
+
 }

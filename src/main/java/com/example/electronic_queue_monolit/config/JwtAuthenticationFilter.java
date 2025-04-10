@@ -104,7 +104,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 requestURI.startsWith("/auth/") ||
                 requestURI.equals("/quest") ||
                 requestURI.startsWith("/ticket/select/") ||
-                requestURI.equals("/active-tickets");
+                requestURI.equals("/ticket/active-tickets");
     }
 
     private String extractTokenFromRequest(HttpServletRequest request) {

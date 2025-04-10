@@ -49,7 +49,7 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 "/quest",
                                 "/ticket/select/**",
-                                "/active-tickets",
+                                "/ticket/active-tickets",
                                 "/ticket/**",
                                 "/generate-form",
                                 "/provision/**", "/js/**", "/img/**", "/favicon.ico"
@@ -87,6 +87,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/role/**").hasRole("ADMIN")
 
                         .requestMatchers(
+                                "/ticket/active-tickets",
                                 "/ticket/generate",
                                 "/ticket/pending-by-place-paged").permitAll()
                         .requestMatchers("/ticket/**").hasAnyRole("ADMIN","OPERATOR")

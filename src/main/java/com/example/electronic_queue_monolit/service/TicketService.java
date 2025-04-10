@@ -43,4 +43,6 @@ public interface TicketService extends BaseService<Ticket, TicketDto> {
     List<TicketDto> getTicketsByStatus(Long id);
     
     List<TicketDto> getAllTicketsForToday();
+
+    List<TicketDto> activeTickets();
 }

@@ -331,5 +331,12 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
         return "ticket/window-panel";
     }
 
+    @GetMapping("/active-tickets")
+    public String activeTickets(Model model) {
+        List<TicketDto> activeTickets = baseService.activeTickets();
+        model.addAttribute("activeTickets", activeTickets);
+        return "quest/active-tickets";
+    }
+
 
 }

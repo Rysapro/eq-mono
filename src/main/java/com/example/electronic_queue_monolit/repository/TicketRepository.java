@@ -62,4 +62,9 @@ public interface TicketRepository extends BaseRepository<Ticket> {
 
     @Query("SELECT t FROM Ticket t WHERE t.createdDate = CURRENT_DATE ORDER BY t.timeOfCreateTicket ASC")
     List<Ticket> findAllTicketsForToday();
+
+    @Query("SELECT t FROM Ticket t WHERE t.createdDate = CURRENT_DATE  AND t.ticketStatus.id = 2 ORDER BY t.timeOfCreateTicket ASC")
+    List<Ticket> findActiveTicketsForToday();
+
+
 }

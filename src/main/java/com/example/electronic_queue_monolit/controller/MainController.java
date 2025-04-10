@@ -53,7 +53,7 @@ public class MainController extends WebBaseController {
     }
 
 
-    @GetMapping("/active-tickets")
+   /* @GetMapping("/active-tickets")
     public String activeTickets(Model model) {
         List<TicketDto> activeTickets = ticketService.getTicketsByStatus(2L);
         List<TicketDto> todayTickets = ticketService.getAllTicketsForToday();
@@ -87,5 +87,5 @@ public class MainController extends WebBaseController {
         model.addAttribute("activeTicketsByPlace", ticketsWithWindowInfo);
         model.addAttribute("todayTickets", todayTickets);
         return "quest/active-tickets";
-    }
+    }*/
 } 
