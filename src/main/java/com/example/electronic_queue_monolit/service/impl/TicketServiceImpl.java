@@ -150,7 +150,7 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
         return dto;
     }
 
-    public String generateTicket(Long placeId, Long provisionId) {  //Генерация талона
+    public TicketDto generateTicket(Long placeId, Long provisionId) {  //Генерация талона
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new RuntimeException("МТО не найдено"));
         Provision provision = provisionRepository.findById(provisionId)
@@ -167,9 +167,8 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
         ticket.setProvision(provision);
         ticket.setTicketStatus(status);
 
-        repo.save(ticket);
-
-        return number;
+        Ticket savedTicket = repo.save(ticket);
+        return mapToTicketResponseDto(savedTicket);
     }
 
     public String generateTicketCode(String code, String provisionName, int ticketNumber) {

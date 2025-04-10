@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TicketService extends BaseService<Ticket, TicketDto> {
-    String generateTicket(Long placeId, Long provisionId);
+    TicketDto generateTicket(Long placeId, Long provisionId);
 
     Ticket updateTicket(Ticket updatedTicket);
 

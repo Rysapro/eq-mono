@@ -7,6 +7,7 @@ import com.example.electronic_queue_monolit.domain.dto.WindowDto;
 import com.example.electronic_queue_monolit.domain.model.Ticket;
 import com.example.electronic_queue_monolit.service.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+
 
 @Controller
 @RequestMapping("/ticket")
@@ -123,9 +126,11 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
     @GetMapping("/select/generate")
     public String generateTicket(
             @RequestParam Long placeId,
-            @RequestParam Long provisionId
+            @RequestParam Long provisionId,
+            HttpSession session
     ) {
-        baseService.generateTicket(placeId, provisionId);
+        TicketDto generatedTicket = baseService.generateTicket(placeId, provisionId);
+        session.setAttribute("generatedTicket", generatedTicket);
         return "redirect:/ticket/your-ticket";
     }
 
@@ -341,14 +346,18 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
     }
 
     @GetMapping("/your-ticket")
-    public String yourTicket(Model model){
-        List<TicketDto> activeTickets = baseService.activeTickets();
-        if (!activeTickets.isEmpty()) {
-            // Получаем последний сгенерированный билет
-            TicketDto lastGeneratedTicket = activeTickets.get(activeTickets.size() - 1);
-            model.addAttribute("ticket", lastGeneratedTicket);
+    public String yourTicket(Model model, HttpSession session){
+        TicketDto generatedTicket = (TicketDto) session.getAttribute("generatedTicket");
+        if (generatedTicket != null) {
+            model.addAttribute("ticket", generatedTicket);
+            // Очищаем сессию после отображения билета
+            session.removeAttribute("generatedTicket");
+        } else {
+            List<TicketDto> activeTickets = baseService.activeTickets();
+            if (!activeTickets.isEmpty()) {
+                model.addAttribute("ticket", activeTickets.get(activeTickets.size() - 1));
+            }
         }
-        model.addAttribute("activeTicketsByPlace", activeTickets);
         return "quest/your-ticket";
     }
 
