@@ -52,7 +52,7 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
 
     @Override
     protected TicketDto createEmptyDto() {
-        return new TicketDto(null, null, null, null, null, null, null,null);
+        return new TicketDto(null, null, null, null, null, null, null, null,null);
     }
     
     @Override
@@ -126,7 +126,7 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
             @RequestParam Long provisionId
     ) {
         baseService.generateTicket(placeId, provisionId);
-        return "redirect:/ticket/active-tickets";
+        return "redirect:/ticket/your-ticket";
     }
 
     @GetMapping("/accept/{id}")
@@ -338,6 +338,18 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
         model.addAttribute("activeTicketsByPlace", activeTickets);
         model.addAttribute("todayTickets", todayTickets);
         return "quest/active-tickets";
+    }
+
+    @GetMapping("/your-ticket")
+    public String yourTicket(Model model){
+        List<TicketDto> activeTickets = baseService.activeTickets();
+        if (!activeTickets.isEmpty()) {
+            // Получаем последний сгенерированный билет
+            TicketDto lastGeneratedTicket = activeTickets.get(activeTickets.size() - 1);
+            model.addAttribute("ticket", lastGeneratedTicket);
+        }
+        model.addAttribute("activeTicketsByPlace", activeTickets);
+        return "quest/your-ticket";
     }
 
 

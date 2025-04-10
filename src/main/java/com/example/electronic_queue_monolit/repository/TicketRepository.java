@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TicketRepository extends BaseRepository<Ticket> {
-    @Query("SELECT MAX(t.ticketCode) FROM Ticket t WHERE t.place.code = :code AND t.provision.provisionName = :provisionName" )
+    @Query("SELECT MAX(t.number) FROM Ticket t WHERE t.place.code = :code AND t.provision.code = :provisionName" )
     String findMaxTicketCodeFor(@Param("code") String code, @Param("provisionName") String provisionName);
 
     @Query("SELECT t FROM Ticket t WHERE (:placeId IS NULL OR t.place.id= :placeId) " +
