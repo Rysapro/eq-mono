@@ -139,7 +139,7 @@
         
         <div class="row">
             <div th:each="provision : ${provisions}" th:if="${provision.place != null && provision.place.id == place.id}" class="col-md-4 col-sm-6">
-                <a th:href="@{/ticket/generate(placeId=${place.id}, provisionId=${provision.id})}" class="text-decoration-none">
+                <a th:href="@{/ticket/select/generate(placeId=${place.id}, provisionId=${provision.id})}" class="text-decoration-none">
                     <div class="service-card">
                         <i class="bi bi-card-checklist"></i>
                         <h4 th:text="${provision.provisionName}">Название услуги</h4>

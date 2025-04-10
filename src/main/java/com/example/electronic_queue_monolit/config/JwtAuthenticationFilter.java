@@ -97,6 +97,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return requestURI.equals("/login") ||
                 requestURI.startsWith("/static/css/") ||
                 requestURI.startsWith("/js/") ||
+                requestURI.startsWith("/static/") ||
+                requestURI.startsWith("/css/") ||
                 requestURI.startsWith("/img/") ||
                 requestURI.startsWith("/images/") ||
                 requestURI.equals("/favicon.ico") ||

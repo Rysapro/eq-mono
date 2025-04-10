@@ -120,13 +120,13 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
         return "ticket/generate";
     }
 
-    @GetMapping("/generate")
+    @GetMapping("/select/generate")
     public String generateTicket(
             @RequestParam Long placeId,
             @RequestParam Long provisionId
     ) {
         baseService.generateTicket(placeId, provisionId);
-        return "redirect:/active-tickets";
+        return "redirect:/ticket/active-tickets";
     }
 
     @GetMapping("/accept/{id}")
@@ -334,9 +334,13 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
     @GetMapping("/active-tickets")
     public String activeTickets(Model model) {
         List<TicketDto> activeTickets = baseService.activeTickets();
-        model.addAttribute("activeTickets", activeTickets);
+        List<TicketDto> todayTickets = baseService.getAllTicketsForToday();
+        model.addAttribute("activeTicketsByPlace", activeTickets);
+        model.addAttribute("todayTickets", todayTickets);
         return "quest/active-tickets";
     }
+
+
 
 
 }

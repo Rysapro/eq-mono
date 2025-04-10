@@ -52,7 +52,7 @@ public class SecurityConfiguration {
                                 "/ticket/active-tickets",
                                 "/ticket/**",
                                 "/generate-form",
-                                "/provision/**", "/js/**", "/img/**", "/favicon.ico"
+                                "/provision/**", "/js/**", "/img/**", "/favicon.ico", "/static/css/**", "/css/**"
                         ).permitAll()
 
                         .requestMatchers(
