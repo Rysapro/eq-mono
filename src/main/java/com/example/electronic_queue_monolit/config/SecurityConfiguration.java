@@ -47,15 +47,6 @@ public class SecurityConfiguration {
                         .requestMatchers("/login").permitAll()
 
                         .requestMatchers(
-                                "/quest",
-                                "/ticket/select/**",
-                                "/ticket/active-tickets",
-                                "/ticket/**",
-                                "/generate-form",
-                                "/provision/**", "/js/**", "/img/**", "/favicon.ico", "/static/css/**", "/css/**"
-                        ).permitAll()
-
-                        .requestMatchers(
                                 "/information/findBySearchName",
                                 "/information/findAll",
                                 "/information/findById/{id}"
@@ -89,6 +80,7 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 "/ticket/active-tickets",
                                 "/ticket/generate",
+                                "/ticket/select/**",
                                 "/ticket/pending-by-place-paged").permitAll()
                         .requestMatchers("/ticket/**").hasAnyRole("ADMIN","OPERATOR")
 
@@ -115,6 +107,13 @@ public class SecurityConfiguration {
                         .requestMatchers("/window/**").hasRole("ADMIN")
 
                         .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
+
+                        .requestMatchers(
+                                "/quest",
+                                "/generate-form",
+                                "/js/**", "/img/**", "/favicon.ico", "/static/css/**", "/css/**"
+                        ).permitAll()
+
                         .requestMatchers("/endpoint", "/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(form -> {
