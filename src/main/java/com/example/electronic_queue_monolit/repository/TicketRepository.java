@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TicketRepository extends BaseRepository<Ticket> {
-    @Query("SELECT MAX(t.ticketCode) FROM Ticket t WHERE t.place.code = :code AND t.provision.provisionName = :provisionName" )
+    @Query("SELECT MAX(t.number) FROM Ticket t WHERE t.place.code = :code AND t.provision.code = :provisionName" )
     String findMaxTicketCodeFor(@Param("code") String code, @Param("provisionName") String provisionName);
 
     @Query("SELECT t FROM Ticket t WHERE (:placeId IS NULL OR t.place.id= :placeId) " +
@@ -62,4 +62,9 @@ public interface TicketRepository extends BaseRepository<Ticket> {
 
     @Query("SELECT t FROM Ticket t WHERE t.createdDate = CURRENT_DATE ORDER BY t.timeOfCreateTicket ASC")
     List<Ticket> findAllTicketsForToday();
+
+    @Query("SELECT t FROM Ticket t WHERE t.createdDate = CURRENT_DATE  AND t.ticketStatus.id = 2 ORDER BY t.timeOfCreateTicket ASC")
+    List<Ticket> findActiveTicketsForToday();
+
+
 }

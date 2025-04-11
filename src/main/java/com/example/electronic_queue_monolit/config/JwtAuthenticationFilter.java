@@ -97,6 +97,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return requestURI.equals("/login") ||
                 requestURI.startsWith("/static/css/") ||
                 requestURI.startsWith("/js/") ||
+                requestURI.startsWith("/static/") ||
+                requestURI.startsWith("/css/") ||
                 requestURI.startsWith("/img/") ||
                 requestURI.startsWith("/images/") ||
                 requestURI.equals("/favicon.ico") ||
@@ -104,7 +106,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 requestURI.startsWith("/auth/") ||
                 requestURI.equals("/quest") ||
                 requestURI.startsWith("/ticket/select/") ||
-                requestURI.equals("/active-tickets");
+                requestURI.equals("/ticket/active-tickets");
     }
 
     private String extractTokenFromRequest(HttpServletRequest request) {

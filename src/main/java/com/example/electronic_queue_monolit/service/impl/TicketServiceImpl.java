@@ -150,7 +150,7 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
         return dto;
     }
 
-    public String generateTicket(Long placeId, Long provisionId) {  //Генерация талона
+    public TicketDto generateTicket(Long placeId, Long provisionId) {  //Генерация талона
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new RuntimeException("МТО не найдено"));
         Provision provision = provisionRepository.findById(provisionId)
@@ -167,9 +167,8 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
         ticket.setProvision(provision);
         ticket.setTicketStatus(status);
 
-        repo.save(ticket);
-
-        return number;
+        Ticket savedTicket = repo.save(ticket);
+        return mapToTicketResponseDto(savedTicket);
     }
 
     public String generateTicketCode(String code, String provisionName, int ticketNumber) {
@@ -266,6 +265,16 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
             windowDto.setNumber(ticket.getWindow().getNumber());
             dto.setWindow(windowDto);
         }
+
+        if (ticket.getProcessingTime() != null) {
+            Duration duration = ticket.getProcessingTime();
+            long totalSeconds = duration.getSeconds();
+            long hours = totalSeconds / 3600;
+            long minutes = (totalSeconds % 3600) / 60;
+            long seconds = totalSeconds % 60;
+            dto.setProcessingTime(String.format("%02d:%02d:%02d", hours, minutes, seconds));
+        }
+        
         return dto;
     }
 
@@ -312,22 +321,24 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
     }
 
     @Override
-    public TicketDto completionTicket(Long id){            //Завершение обработки
+    public TicketDto completionTicket(Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) auth.getPrincipal();
 
         Ticket ticket = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Билет не найден!!!"));
 
-        if(ticket.getTicketStatus().getId() == 3L){
+        if(ticket.getTicketStatus().getId() == 3L) {
             throw new RuntimeException("талон был уже принят или обработан");
         }
         TicketStatus newStatus = ticketStatusRepository.findById(3L)
                 .orElseThrow(() -> new RuntimeException("Статус Завершенный с id 3 не найден!!!"));
         ticket.setTicketStatus(newStatus);
 
-        ticket.setTimeOfFinished(LocalDateTime.now());
-        ticket.setProcessingTime(Duration.between(ticket.getUpdateDate(), ticket.getTimeOfFinished()));
+        LocalDateTime now = LocalDateTime.now();
+        ticket.setTimeOfFinished(now);
+        Duration duration = Duration.between(ticket.getUpdateDate(), now);
+        ticket.setProcessingTime(duration);
 
         Ticket updatedTicket = repo.save(ticket);
         return mapToTicketResponseDto(updatedTicket);
@@ -391,14 +402,14 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
                 .collect(Collectors.toList());
     }
 
-    @Override       //возвращает с пагинацией завершенные талоны (21)
-    public Page<TicketDto> getTicketStatusFinished(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+    @Override
+    public Page<TicketDto> getTicketStatusFinished(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {      //возвращает с пагинацией завершенные талоны (21)
         return ticketRepository.findAllFinishedTickets(startDate, endDate, pageable)
                 .map(this::mapToTicketResponseDto);
     }
 
-    @Override    //возвращает с пагинацией по месту завершенные талоны
-    public Page<TicketDto> getTicketStatusFinishedWithPlace(Long placeId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+    @Override
+    public Page<TicketDto> getTicketStatusFinishedWithPlace(Long placeId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {      //возвращает с пагинацией по месту завершенные талоны
         return ticketRepository.findAllFinishedTicketsWithPlace(placeId, startDate, endDate, pageable)
                 .map(this::mapToTicketResponseDto);
     }
@@ -423,4 +434,14 @@ public class TicketServiceImpl extends BaseServiceImpl<Ticket, TicketDto, Ticket
                 .map(this::mapToTicketResponseDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<TicketDto> activeTickets() {
+        return ticketRepository.findActiveTicketsForToday()
+                .stream()
+                .map(this::mapToTicketResponseDto)
+                .collect(Collectors.toList());
+    }
+
+
 }

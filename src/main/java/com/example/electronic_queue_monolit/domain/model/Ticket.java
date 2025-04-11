@@ -26,7 +26,22 @@ public class Ticket extends BaseEntity {
     private String number;
 
     private LocalDateTime timeOfFinished;
+    
+    @Column(name = "processing_time")
+    private Long processingTimeSeconds;
+
+    @Transient
     private Duration processingTime;
+
+    public Duration getProcessingTime() {
+        return processingTimeSeconds != null ? Duration.ofSeconds(processingTimeSeconds) : null;
+    }
+
+    public void setProcessingTime(Duration duration) {
+        this.processingTime = duration;
+        this.processingTimeSeconds = duration != null ? duration.getSeconds() : null;
+    }
+
     @ManyToOne
     @JoinColumn(name = "users")
     private User operatorId;
@@ -42,9 +57,6 @@ public class Ticket extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "info")
     private Information information;
-
-    @Column(name = "ticket_code")
-    private String ticketCode;
 
     @ManyToOne
     @JoinColumn(name = "ticket_status")

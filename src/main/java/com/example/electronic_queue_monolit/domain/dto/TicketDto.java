@@ -16,4 +16,5 @@ public class TicketDto{
     private InformationDto information;
     private TicketStatusDto ticketStatus;
     private WindowDto window;
+    private String processingTime;
 }

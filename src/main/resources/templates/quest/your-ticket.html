@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ваш талон</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/your-ticket.css}">
+</head>
+<body>
+<div class="container">
+    <div th:if="${ticket != null}" class="ticket-container">
+        <div class="ticket-header">
+            <h2>Ваш талон</h2>
+            <div class="ticket-number" th:text="${ticket.number}">A001</div>
+        </div>
+        
+        <div class="ticket-details">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <div class="info-label">Место обслуживания</div>
+                        <div class="ticket-info" th:text="${ticket.place != null ? ticket.place.name : '-'}">-</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <div class="info-label">Услуга</div>
+                        <div class="ticket-info" th:text="${ticket.provision != null ? ticket.provision.provisionName : '-'}">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ticket-actions">
+            <a href="/ticket/active-tickets" class="btn btn-action btn-primary-gradient">
+                <i class="bi bi-people-fill me-2"></i>Посмотреть очередь
+            </a>
+            <button onclick="downloadTicket()" class="btn btn-action btn-outline-gradient">
+                <i class="bi bi-download me-2"></i>Скачать талон
+            </button>
+        </div>
+    </div>
+    
+    <div th:if="${ticket == null}" class="ticket-container no-ticket-container">
+        <div class="no-ticket-icon">
+            <i class="bi bi-ticket-perforated"></i>
+        </div>
+        <h3 class="mb-3">Талон не найден</h3>
+        <p class="text-muted mb-4">В данный момент у вас нет активного талона.</p>
+        <a href="/ticket/generate-form" class="btn btn-action btn-primary-gradient">
+            <i class="bi bi-plus-circle me-2"></i>Получить новый талон
+        </a>
+    </div>
+</div>
+<script>
+    function downloadTicket() {
+        const ticketElement = document.querySelector('.ticket-container');
+        
+        html2canvas(ticketElement, {
+            backgroundColor: 'white',
+            scale: 2,
+            logging: false,
+            useCORS: true
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'ticket.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    }
+</script>
+</body>
+</html>

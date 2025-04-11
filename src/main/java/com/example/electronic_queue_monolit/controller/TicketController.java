@@ -7,6 +7,7 @@ import com.example.electronic_queue_monolit.domain.dto.WindowDto;
 import com.example.electronic_queue_monolit.domain.model.Ticket;
 import com.example.electronic_queue_monolit.service.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+
 
 @Controller
 @RequestMapping("/ticket")
@@ -52,7 +55,7 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
 
     @Override
     protected TicketDto createEmptyDto() {
-        return new TicketDto(null, null, null, null, null, null, null,null);
+        return new TicketDto(null, null, null, null, null, null, null, null,null);
     }
     
     @Override
@@ -120,13 +123,15 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
         return "ticket/generate";
     }
 
-    @GetMapping("/generate")
+    @GetMapping("/select/generate")
     public String generateTicket(
             @RequestParam Long placeId,
-            @RequestParam Long provisionId
+            @RequestParam Long provisionId,
+            HttpSession session
     ) {
-        baseService.generateTicket(placeId, provisionId);
-        return "redirect:/active-tickets";
+        TicketDto generatedTicket = baseService.generateTicket(placeId, provisionId);
+        session.setAttribute("generatedTicket", generatedTicket);
+        return "redirect:/ticket/your-ticket";
     }
 
     @GetMapping("/accept/{id}")
@@ -330,6 +335,33 @@ public class TicketController extends BaseController<Ticket, TicketDto, TicketSe
         
         return "ticket/window-panel";
     }
+
+    @GetMapping("/active-tickets")
+    public String activeTickets(Model model) {
+        List<TicketDto> activeTickets = baseService.activeTickets();
+        List<TicketDto> todayTickets = baseService.getAllTicketsForToday();
+        model.addAttribute("activeTicketsByPlace", activeTickets);
+        model.addAttribute("todayTickets", todayTickets);
+        return "quest/active-tickets";
+    }
+
+    @GetMapping("/your-ticket")
+    public String yourTicket(Model model, HttpSession session){
+        TicketDto generatedTicket = (TicketDto) session.getAttribute("generatedTicket");
+        if (generatedTicket != null) {
+            model.addAttribute("ticket", generatedTicket);
+            // Очищаем сессию после отображения билета
+            session.removeAttribute("generatedTicket");
+        } else {
+            List<TicketDto> activeTickets = baseService.activeTickets();
+            if (!activeTickets.isEmpty()) {
+                model.addAttribute("ticket", activeTickets.get(activeTickets.size() - 1));
+            }
+        }
+        return "quest/your-ticket";
+    }
+
+
 
 
 }

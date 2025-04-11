@@ -52,40 +52,4 @@ public class MainController extends WebBaseController {
         return "/select";
     }
 
-
-    @GetMapping("/active-tickets")
-    public String activeTickets(Model model) {
-        List<TicketDto> activeTickets = ticketService.getTicketsByStatus(2L);
-        List<TicketDto> todayTickets = ticketService.getAllTicketsForToday();
-        
-        Map<PlaceDto, List<TicketDto>> ticketsByPlace = new HashMap<>();
-        for (TicketDto ticket : activeTickets) {
-            PlaceDto place = ticket.getPlace();
-            if (!ticketsByPlace.containsKey(place)) {
-                ticketsByPlace.put(place, new ArrayList<>());
-            }
-            ticketsByPlace.get(place).add(ticket);
-        }
-        
-        Map<PlaceDto, List<Map<String, Object>>> ticketsWithWindowInfo = new HashMap<>();
-        
-        for (Map.Entry<PlaceDto, List<TicketDto>> entry : ticketsByPlace.entrySet()) {
-            PlaceDto place = entry.getKey();
-            List<TicketDto> tickets = entry.getValue();
-            
-            List<Map<String, Object>> ticketInfoList = new ArrayList<>();
-            
-            for (TicketDto ticket : tickets) {
-                Map<String, Object> ticketInfo = new HashMap<>();
-                ticketInfo.put("ticket", ticket);
-                ticketInfoList.add(ticketInfo);
-            }
-            
-            ticketsWithWindowInfo.put(place, ticketInfoList);
-        }
-        
-        model.addAttribute("activeTicketsByPlace", ticketsWithWindowInfo);
-        model.addAttribute("todayTickets", todayTickets);
-        return "quest/active-tickets";
-    }
 } 
