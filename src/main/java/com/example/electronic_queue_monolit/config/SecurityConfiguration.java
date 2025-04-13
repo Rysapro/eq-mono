@@ -81,7 +81,9 @@ public class SecurityConfiguration {
                                 "/ticket/active-tickets",
                                 "/ticket/generate",
                                 "/ticket/select/**",
-                                "/ticket/pending-by-place-paged").permitAll()
+                                "/ticket/pending-by-place-paged",
+                                "/ticket/your-ticket",
+                                "/ticket/generate-form"   ).permitAll()
                         .requestMatchers("/ticket/**").hasAnyRole("ADMIN","OPERATOR")
 
                         .requestMatchers(
@@ -99,7 +101,8 @@ public class SecurityConfiguration {
 
                         .requestMatchers(
                                 "/window/findAll",
-                                "/window/by-place").permitAll()
+                                "/window/by-place"
+                                        ).permitAll()
                         .requestMatchers(
                                 "/window/findBySearchName",
                                 "/window/findById/{id}"

@@ -105,6 +105,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 requestURI.equals("/logout") ||
                 requestURI.startsWith("/auth/") ||
                 requestURI.equals("/quest") ||
+                requestURI.equals("/generate-form") ||
+                requestURI.equals("/ticket/your-ticket") ||
                 requestURI.startsWith("/ticket/select/") ||
                 requestURI.equals("/ticket/active-tickets");
     }
